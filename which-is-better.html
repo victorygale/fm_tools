@@ -21,14 +21,14 @@
     button { margin-top: 12px; padding: 8px 14px; }
     #result { margin-top: 18px; font-weight: 600; white-space: pre-wrap; background:#fff; padding:12px; border-radius:8px; border:1px solid #e6eef8; }
     .stats { margin-top: 8px; font-style: italic; color:var(--muted) }
-    .nave {
+    .nav {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 12px;
       margin: 0 auto 12px;
       padding: 8px 0;
     }
-    .carde{
+    .card, .carde{
       background: var(--panel);
       border: 1px solid #dfe6f6;
       border-radius: 10px;
@@ -36,6 +36,12 @@
       text-align: center;
       color: var(--text);
       font-weight: 600;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .card:hover {
+      background: var(--accent);
+      color: #081326;
+      transform: translateY(-4px);
     }
     .toggle { display:inline-flex; border-radius:8px; background: #eef2ff; padding: 4px; gap:4px; }
     .toggle button{
@@ -66,7 +72,7 @@
   <input type="file" id="uploadJson" accept=".json" onchange="loadJson(this)" />
   <button onclick="downloadSample()">Download Sample Data</button>
 
-  <div class="nave" aria-hidden="false">
+  <div class="nav" aria-hidden="false">
     <div class="carde" role="region" aria-label="Preferred substats">
       <div style="font-size:0.95rem">Preferred Substats:<br><small style="font-weight:400">speed, double, range</small></div>
       <div class="toggle" role="tablist" aria-label="Preferred substats">
@@ -180,6 +186,17 @@
     <button onclick="simulate()">Simulate Build</button>
     <div id="result">Results will appear here.</div>
     <div class="small-note">Note: This simulation is illustrative — tweak weights/formulas to match your game's mechanics.</div>
+  </div>
+
+  <div class="nav" style="margin-top:20px;">
+    <a href="https://octavian-mirica.github.io/fm-tools/" class="card" target="_blank" rel="noopener noreferrer">
+      <div class="icon">🐈‍⬛</div>
+      <div>Fm Tools by Fitz</div>
+    </a>
+    <a href="https://victorygale.github.io/fm-tools/" class="card" target="_blank" rel="noopener noreferrer">
+      <div class="icon">𖨆</div>
+      <div>FM Tools Kayzee Edit</div>
+    </a>
   </div>
 
   <script>
