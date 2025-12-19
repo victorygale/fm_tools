@@ -1,0 +1,56 @@
+{
+  "itemOld": {
+    "damage": 100,
+    "health": 1000,
+    "dmult": 0,
+    "hmult": 0,
+    "speed": 0,
+    "double": 0,
+    "crit": 0,
+    "critdmg": 0,
+    "lifesteal": 0,
+    "regen": 0,
+    "block": 0
+  },
+  "itemNew": {
+    "damage": 100,
+    "health": 1000,
+    "dmult": 0,
+    "hmult": 0,
+    "speed": 0,
+    "double": 0,
+    "crit": 0,
+    "critdmg": 0,
+    "lifesteal": 0,
+    "regen": 0,
+    "block": 0
+  },
+  "player": {
+    "damage": 1000,
+    "health": 10000,
+    "dmult": 0,
+    "hmult": 0,
+    "speed": 100,
+    "double": 100,
+    "crit": 0,
+    "critdmg": 0,
+    "lifesteal": 50,
+    "regen": 0,
+    "block": 0
+  },
+  "mount": {
+    "damage": 0,
+    "health": 0,
+    "dmult": 100,
+    "hmult": 100,
+    "speed": 0,
+    "double": 0,
+    "crit": 0,
+    "critdmg": 0,
+    "lifesteal": 0,
+    "regen": 0,
+    "block": 0
+  }
+}
+
+

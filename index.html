@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FM Tools</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --bg: #0f1221;
+        --panel: #171a2e;
+        --accent: #5ad0ff;
+        --text: #e7e9ff;
+        --muted: #aab0d3;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          "Helvetica Neue", Arial;
+      }
+      h1 {
+        text-align: center;
+        font-size: 2rem;
+        margin: 30px 0;
+        color: var(--accent);
+      }
+      .nav {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid #2a2f52;
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 600;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+        transition: transform 0.2s, background 0.2s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      .card:hover {
+        background: var(--accent);
+        color: #081326;
+        transform: translateY(-4px);
+      }
+      .icon {
+        font-size: 2rem;
+      }
+      @media (max-width: 600px) {
+        .nav {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>FM Tools - Kayzee Edit,
+<br> (originally by Fitz using Copilot)</h1>
+    <div class="nav">
+      <a href="https://octavian-mirica.github.io/fm-tools/" class="card">
+        <div class="icon">🐈‍⬛</div>
+        <div>Fm Tools by Fitz</div>
+      </a>
+      <a href="which-is-better.html" class="card">
+        <div class="icon">⁉️</div>
+        <div>Which is better?</div>
+      </a>
+    </div>
+  </body>
+</html>
