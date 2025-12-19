@@ -514,15 +514,16 @@
         divitem1.classList.add('worse');
       } else {
         resultText += 'Recommendation: Both items are roughly equal.\n';
-        const item1Level = (Number(item1.damage) || 0) + (Number(item1.health) || 0);
-        const item2Level = (Number(item2.damage) || 0) + (Number(item2.health) || 0);
-
-        if (item1Level > item2Level) {
-          resultText += 'Item 1 has a higher level.\n';
-        } else if (item2Level > item1Level) {
-          resultText += 'Item 2 has a higher level.\n';
-        } else {
-          resultText += 'Even their levels are the same!\n';
+        if (itemsOnly) {
+          const item1Level = (Number(item1.damage) || 0) + (Number(item1.health) || 0);
+          const item2Level = (Number(item2.damage) || 0) + (Number(item2.health) || 0);
+          if (item1Level > item2Level) {
+            resultText += 'Item 1 has a higher level.\n';
+          } else if (item2Level > item1Level) {
+            resultText += 'Item 2 has a higher level.\n';
+          } else {
+            resultText += 'Even their levels are the same!\n';
+          }
         }
       }
 
@@ -532,7 +533,7 @@
       resultText += (preferred ? 'Focused on preferred substats.\n' : 'Looking at overall stats.\n');
 
       // small stats panels
-      $('e3_stats').textContent = `Player Quality ${pqa.toFixed(3)}`;
+      // $('e3_stats').textContent = `Player Quality ${pqa.toFixed(3)}`;
 
       $('result').textContent = resultText;
     }
