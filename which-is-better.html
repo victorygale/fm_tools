@@ -161,8 +161,8 @@
       </div>
       <div class="stats" id="e3_stats"></div>
     </div>
- 
-   <div class="column" id="hide4">
+
+    <div class="column" id="hide4">
       <h2 style="margin:6px 0">Mount</h2>
       <div id="e4">
         <label><input type="number" id="e4_damage" value="100"/> Damage</label>
@@ -291,119 +291,120 @@
       return { damage, health, dmult, hmult, speed, double: dbl, crit, critdmg, lifesteal, range, regen, block };
     }
 
-// Core formulas
-function computeDPS(p) {
-  // defensive: ensure numeric values (p fields are expected to be normalized decimals where appropriate)
-  const dmg = Number(p.damage) || 0;
-  let dbl = Number(p.double) || 0;
-  const crit = Number(p.crit) || 0;
-  const critdmg = Number(p.critdmg) || 0;
-  const spd = Number(p.speed) || 0;
+    // Core formulas
+    function computeDPS(p) {
+      // defensive: ensure numeric values (p fields are expected to be normalized decimals where appropriate)
+      const dmg = Number(p.damage) || 0;
+      let dbl = Number(p.double) || 0;
+      const crit = Number(p.crit) || 0;
+      const critdmg = Number(p.critdmg) || 0;
+      const spd = Number(p.speed) || 0;
 
-  if (dbl > 1) {
-    dbl = 1;
-  }
+      if (dbl > 1) {
+        dbl = 1;
+      }
 
-  // effective damage (ED) then DPS estimate
-  const ed = dmg * ((1 + dbl) * (1 + (crit * critdmg)));
-  return ed * 0.588 * (1 + spd);
-}
-
-function computeDPS2(i1, i2, player, mount) {
-  // Estimate build DPS after swapping item i1 -> i2.
-  // All inputs should be "stat objects" with numeric fields (damage, dmult, speed, double, crit, critdmg, etc).
-  // This function is intentionally conservative and defensive.
-  try {
-    // normalize numeric inputs (fall back to 0)
-    const pDamage = Number(player.damage) || 0;
-    const pDmult = Number(player.dmult) || 0;
-    const pSpeed = Number(player.speed) || 0;
-    const pDouble = Number(player.double) || 0;
-    const pCrit = Number(player.crit) || 0;
-    const pCritDmg = Number(player.critdmg) || 0;
-
-    const mDamage = Number(mount.damage / 100) || 0;
-    const mDmult = Number(mount.dmult) || 0;
-
-    const i1Damage = Number(i1.damage) || 0;
-    const i1Dmult = Number(i1.dmult) || 0;
-    const i1Speed = Number(i1.speed) || 0;
-    const i1Double = Number(i1.double) || 0;
-    const i1Crit = Number(i1.crit) || 0;
-    const i1CritDmg = Number(i1.critdmg) || 0;
-
-    const i2Damage = Number(i2.damage) || 0;
-    const i2Dmult = Number(i2.dmult) || 0;
-    const i2Speed = Number(i2.speed) || 0;
-    const i2Double = Number(i2.double) || 0;
-    const i2Crit = Number(i2.crit) || 0;
-    const i2CritDmg = Number(i2.critdmg) || 0;
-
-    // Build baseline combined raw damage (player + mount), then swap item contribution
-    const baseRawDamage = pDamage / (1 + pDmult + mDamage + mDmult);
-    const swappedRawDamage = baseRawDamage - i1Damage + i2Damage;
-
-    // Build total damage multiplier (sum of multipliers from player, mount and item differences)
-    // Note: dmult fields are expected to be decimals (e.g. 0.25 for +25%).
-    const totalMult = 1 + pDmult + mDamage + mDmult - i1Dmult + i2Dmult;
-
-    const finalDamage = swappedRawDamage * totalMult;
-
-    // Combined secondary stats after swap (player + item differences)
-    let finalDouble = pDouble - i1Double + i2Double;
-    if (finalDouble > 1) {
-      finalDouble = 1;
+      // effective damage (ED) then DPS estimate
+      const ed = dmg * ((1 + dbl) * (1 + (crit * critdmg)));
+      return ed * 0.588 * (1 + spd);
     }
-    const finalCrit = pCrit - i1Crit + i2Crit;
-    const finalCritDmg = pCritDmg - i1CritDmg + i2CritDmg;
-    const finalSpeed = pSpeed - i1Speed + i2Speed;
 
-    // Use the same ED -> DPS formula as computeDPS but with combined stats
-    const ed = finalDamage * ((1 + finalDouble) * (1 + (finalCrit * finalCritDmg)));
-    const dps = ed * 0.588 * (1 + finalSpeed);
+    function computeDPS2(i1, i2, player, mount) {
+      // Estimate build DPS after swapping item i1 -> i2.
+      // All inputs should be "stat objects" with numeric fields (damage, dmult, speed, double, crit, critdmg, etc).
+      // This function is intentionally conservative and defensive.
+      try {
+        // normalize numeric inputs (fall back to 0)
+        const pDamage = Number(player.damage) || 0;
+        const pDmult = Number(player.dmult) || 0;
+        const pSpeed = Number(player.speed) || 0;
+        const pDouble = Number(player.double) || 0;
+        const pCrit = Number(player.crit) || 0;
+        const pCritDmg = Number(player.critdmg) || 0;
 
-    return Number.isFinite(dps) ? dps : 0;
-  } catch (err) {
-    return 0;
-  }
-}
+        const mDamage = Number(mount.damage / 100) || 0;
+        const mDmult = Number(mount.dmult) || 0;
 
-function computeSustain(p, dps) {
-  const ls = Number(p.lifesteal) || 0;
-  const regen = Number(p.regen) || 0;
-  const hp = Number(p.health) || 0;
-  const d = Number(dps) || 0;
-  return d * ls + hp * regen;
-}
+        const i1Damage = Number(i1.damage) || 0;
+        const i1Dmult = Number(i1.dmult) || 0;
+        const i1Speed = Number(i1.speed) || 0;
+        const i1Double = Number(i1.double) || 0;
+        const i1Crit = Number(i1.crit) || 0;
+        const i1CritDmg = Number(i1.critdmg) || 0;
 
-function computeSustain2(i1, i2, p, m, dps) {
-  // estimate sustain difference after swap; keep defensive
-  const d = Number(dps) || 0;
-  const lsDiff = (Number(p.lifesteal) || 0) - (Number(i1.lifesteal) || 0) + (Number(i2.lifesteal) || 0);
-  const regenDiff = (Number(p.regen) || 0) - (Number(i1.regen) || 0) + (Number(i2.regen) || 0);
+        const i2Damage = Number(i2.damage) || 0;
+        const i2Dmult = Number(i2.dmult) || 0;
+        const i2Speed = Number(i2.speed) || 0;
+        const i2Double = Number(i2.double) || 0;
+        const i2Crit = Number(i2.crit) || 0;
+        const i2CritDmg = Number(i2.critdmg) || 0;
 
-  // Build baseline combined raw health (player + mount), then swap item contribution
-  const baseRawHealth = (Number(p.health) || 0) / (1 + (Number(p.hmult) || 0) + (Number(m.health) || 0) + (Number(m.hmult) || 0));
-  const swappedRawHealth = baseRawHealth - (Number(i1.health) || 0) + (Number(i2.health) || 0);
+        // Build baseline combined raw damage (player + mount), then swap item contribution
+        const baseRawDamage = pDamage / (1 + pDmult + mDamage + mDmult);
+        const swappedRawDamage = baseRawDamage - i1Damage + i2Damage;
 
-  // Build total health multiplier (sum of multipliers from player, mount and item differences)
-  // Note: hmult fields are expected to be decimals (e.g. 0.25 for +25%).
-  const totalHMult = 1 + (Number(p.hmult) || 0) + (Number(m.health) || 0) + (Number(m.hmult) || 0) - (Number(i1.hmult) || 0) + (Number(i2.hmult) || 0);
+        // Build total damage multiplier (sum of multipliers from player, mount and item differences)
+        // Note: dmult fields are expected to be decimals (e.g. 0.25 for +25%).
+        const totalMult = 1 + pDmult + mDamage + mDmult - i1Dmult + i2Dmult;
 
-  const finalHealth = swappedRawHealth * totalHMult;
-  return d * lsDiff + finalHealth * regenDiff;
-}
+        const finalDamage = swappedRawDamage * totalMult;
 
-// Quality calculators (weights can be tuned)
-function computeQA(p) {
-  return (p.dmult/0.15) + (p.hmult/0.15) + (p.speed/0.4) + (p.double/0.4) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.2) + (p.range/0.15) + (p.regen/0.06) + (p.block/0.07);
-}
-function computePQA(p) {
-  return (p.dmult/0.1) + (p.hmult/0.1) + (p.speed/0.2) + (p.double/0.2) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.1) + (p.range/0.1) + (p.regen/0.04) + (p.block/0.07);
-}
-function compute2QA(p) {
-  return (p.dmult/0.3) + (p.hmult/0.3) + (p.speed/0.2) + (p.double/0.2) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.1) + (p.range/0.15) + (p.regen/0.06) + (p.block/0.07);
-}
+        // Combined secondary stats after swap (player + item differences)
+        let finalDouble = pDouble - i1Double + i2Double;
+        if (finalDouble > 1) {
+          finalDouble = 1;
+        }
+        const finalCrit = pCrit - i1Crit + i2Crit;
+        const finalCritDmg = pCritDmg - i1CritDmg + i2CritDmg;
+        const finalSpeed = pSpeed - i1Speed + i2Speed;
+
+        // Use the same ED -> DPS formula as computeDPS but with combined stats
+        const ed = finalDamage * ((1 + finalDouble) * (1 + (finalCrit * finalCritDmg)));
+        const dps = ed * 0.588 * (1 + finalSpeed);
+
+        return Number.isFinite(dps) ? dps : 0;
+      } catch (err) {
+        return 0;
+      }
+    }
+
+    function computeSustain(p, dps) {
+      const ls = Number(p.lifesteal) || 0;
+      const regen = Number(p.regen) || 0;
+      const hp = Number(p.health) || 0;
+      const d = Number(dps) || 0;
+      return d * ls + hp * regen;
+    }
+
+    function computeSustain2(i1, i2, p, m, dps) {
+      // estimate sustain difference after swap; keep defensive
+      const d = Number(dps) || 0;
+      const lsDiff = (Number(p.lifesteal) || 0) - (Number(i1.lifesteal) || 0) + (Number(i2.lifesteal) || 0);
+      const regenDiff = (Number(p.regen) || 0) - (Number(i1.regen) || 0) + (Number(i2.regen) || 0);
+
+      // Build baseline combined raw health (player + mount), then swap item contribution
+      const baseRawHealth = (Number(p.health) || 0) / (1 + (Number(p.hmult) || 0) + (Number(m.health) || 0) + (Number(m.hmult) || 0));
+      const swappedRawHealth = baseRawHealth - (Number(i1.health) || 0) + (Number(i2.health) || 0);
+
+      // Build total health multiplier (sum of multipliers from player, mount and item differences)
+      // Note: hmult fields are expected to be decimals (e.g. 0.25 for +25%).
+      const totalHMult = 1 + (Number(p.hmult) || 0) + (Number(m.health) || 0) + (Number(m.hmult) || 0) - (Number(i1.hmult) || 0) + (Number(i2.hmult) || 0);
+
+      const finalHealth = swappedRawHealth * totalHMult;
+      return d * lsDiff + finalHealth * regenDiff;
+    }
+
+    // Quality calculators (weights can be tuned)
+    function computeQA(p) {
+      return (p.dmult/0.15) + (p.hmult/0.15) + (p.speed/0.4) + (p.double/0.4) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.2) + (p.range/0.15) + (p.regen/0.06) + (p.block/0.07);
+    }
+    function computePQA(p) {
+      return (p.dmult/0.1) + (p.hmult/0.1) + (p.speed/0.2) + (p.double/0.2) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.1) + (p.range/0.1) + (p.regen/0.04) + (p.block/0.07);
+    }
+    function compute2QA(p) {
+      return (p.dmult/0.3) + (p.hmult/0.3) + (p.speed/0.2) + (p.double/0.2) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.1) + (p.range/0.15) + (p.regen/0.06) + (p.block/0.07);
+    }
+
     function simulate() {
       // read inputs
       const item1 = getStats('e1');
@@ -426,7 +427,7 @@ function compute2QA(p) {
       const pqa = calcQA(player);
       const sqa1 = computeQA(item1);
       const sqa2 = computeQA(item2);
-      const sqa = computeQA(player); 
+      const sqa = computeQA(player);
 
       // build result text
       let resultText = '';
@@ -460,11 +461,11 @@ function compute2QA(p) {
         resultText += `Build Sustain (item 1): ${formatNumber(keepBuildSustain)}\n`;
         resultText += `Build Sustain (item 2): ${formatNumber(swapBuildSustain)}\n\n`;
       } else {
-    //    resultText += 'Items only = yes → ignoring player and mount in totals.\n\n';
+        // items-only branch left intentionally minimal
       }
 
-    //  resultText += `Double substats: ${doubleSubstats ? 'Yes' : 'No'}\n`;
-    //  resultText += `Preferred substats focus: ${preferred ? 'Yes' : 'No'}\n\n`;
+      resultText += `Double substats: ${doubleSubstats ? 'Yes' : 'No'}\n`;
+      resultText += `Preferred substats focus: ${preferred ? 'Yes' : 'No'}\n\n`;
 
       // scoring: combine DPS, sustain and quality (you can adjust weights)
       let score1 = iqa1; // default when itemsOnly
@@ -472,7 +473,6 @@ function compute2QA(p) {
       let rate1 = sqa1;
       let rate2 = sqa2;
       let rate3 = sqa;
-
 
       if (!itemsOnly) {
         score1 = keepBuildDPS + keepBuildSustain;
@@ -485,7 +485,7 @@ function compute2QA(p) {
         rate1 = rate1 * 100;
         rate2 = rate2 * 100;
       }
-        rate3 = rate3 * 100 / 12;
+      rate3 = rate3 * 100 / 12;
       if (doubleSubstats) {
         rate1 = rate1 / 2;
         rate2 = rate2 / 2;
@@ -514,6 +514,16 @@ function compute2QA(p) {
         divitem1.classList.add('worse');
       } else {
         resultText += 'Recommendation: Both items are roughly equal.\n';
+        const item1Level = (Number(item1.damage) || 0) + (Number(item1.health) || 0);
+        const item2Level = (Number(item2.damage) || 0) + (Number(item2.health) || 0);
+
+        if (item1Level > item2Level) {
+          resultText += 'Item 1 has a higher level.\n';
+        } else if (item2Level > item1Level) {
+          resultText += 'Item 2 has a higher level.\n';
+        } else {
+          resultText += 'Even their levels are the same!\n';
+        }
       }
 
       resultText += '\n';
