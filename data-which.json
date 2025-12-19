@@ -9,6 +9,7 @@
     "crit": 0,
     "critdmg": 0,
     "lifesteal": 0,
+    "range": 0,
     "regen": 0,
     "block": 0
   },
@@ -22,6 +23,7 @@
     "crit": 0,
     "critdmg": 0,
     "lifesteal": 0,
+    "range": 0,
     "regen": 0,
     "block": 0
   },
@@ -35,22 +37,27 @@
     "crit": 0,
     "critdmg": 0,
     "lifesteal": 50,
+    "range": 0,
     "regen": 0,
     "block": 0
   },
   "mount": {
-    "damage": 0,
-    "health": 0,
-    "dmult": 100,
-    "hmult": 100,
+    "damage": 100,
+    "health": 100,
+    "dmult": 0,
+    "hmult": 0,
     "speed": 0,
     "double": 0,
     "crit": 0,
     "critdmg": 0,
     "lifesteal": 0,
+    "range": 0,
     "regen": 0,
     "block": 0
+  },
+  "options": {
+    "preferredSubstats": "yes",
+    "doubleSubstats": "yes",
+    "itemsOnly": "yes"
   }
 }
-
-

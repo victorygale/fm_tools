@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Which is better?</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --accent: #2563eb;
+      --muted: #6b7280;
+      --bg: #f7f9fc;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --good-bg: #e7f2ff;
+      --bad-bg: #fff0f0;
+    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; color: var(--text); }
+    h2 { margin-top: 10px; }
+    label { display: block; margin: 6px 0 2px; }
+    input[type="number"], input[type="file"] { width: 120px; margin-bottom: 8px; }
+    button { margin-top: 12px; padding: 8px 14px; }
+    #result { margin-top: 18px; font-weight: 600; white-space: pre-wrap; background:#fff; padding:12px; border-radius:8px; border:1px solid #e6eef8; }
+    .stats { margin-top: 8px; font-style: italic; color:var(--muted) }
+    .nave {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 0 auto 12px;
+      padding: 8px 0;
+    }
+    .carde{
+      background: var(--panel);
+      border: 1px solid #dfe6f6;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .toggle { display:inline-flex; border-radius:8px; background: #eef2ff; padding: 4px; gap:4px; }
+    .toggle button{
+      border: none;
+      background: transparent;
+      padding: 0.45rem 0.9rem;
+      border-radius:6px;
+      cursor: pointer;
+      font-weight:600;
+      color: #0f172a;
+    }
+    .toggle button[aria-pressed="true"]{ background: var(--accent); color: #fff; }
+    .output { margin-top:8px; font-size:0.95rem; color:var(--muted); }
+    .better { background: var(--good-bg); border: 1px solid #cfe6ff; border-radius:8px; padding:6px; }
+    .worse { background: var(--bad-bg); border: 1px solid #ffdede; border-radius:8px; padding:6px; }
+    .hidden { display: none !important; }
+    .small-note { font-size:0.9rem; color:var(--muted); margin-top:8px; }
+    .grid-row { display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+    .column { min-width:200px; }
+  </style>
+</head>
+
+<body>
+  <h1>⁉️ Which is better?</h1>
+  <h2 style="font-weight:normal">Help decide what to keep — Kayzee Edit</h2>
+
+  <h3>📁 Upload or Download Player Stats</h3>
+  <input type="file" id="uploadJson" accept=".json" onchange="loadJson(this)" />
+  <button onclick="downloadSample()">Download Sample Data</button>
+
+  <div class="nave" aria-hidden="false">
+    <div class="carde" role="region" aria-label="Preferred substats">
+      <div style="font-size:0.95rem">Preferred Substats:<br><small style="font-weight:400">speed, double, range</small></div>
+      <div class="toggle" role="tablist" aria-label="Preferred substats">
+        <button class="toggle-btn1" data-value="yes" aria-pressed="true">Yes</button>
+        <button class="toggle-btn1" data-value="no" aria-pressed="false">No</button>
+      </div>
+      <input type="hidden" id="yesno-value1" name="yesno1" value="yes">
+      <div class="output" id="output1">Selected: Yes</div>
+    </div>
+
+    <div class="carde" role="region" aria-label="Double substats">
+      <div style="font-size:0.95rem">Double Substats</div>
+      <div class="toggle" role="tablist" aria-label="Double substats">
+        <button class="toggle-btn2" data-value="yes" aria-pressed="true">Yes</button>
+        <button class="toggle-btn2" data-value="no" aria-pressed="false">No</button>
+      </div>
+      <input type="hidden" id="yesno-value2" name="yesno2" value="yes">
+      <div class="output" id="output2">Selected: Yes</div>
+    </div>
+
+    <div class="carde" role="region" aria-label="Items only">
+      <div style="font-size:0.95rem">Items only</div>
+      <div class="toggle" role="tablist" aria-label="Items only">
+        <button class="toggle-btn3" data-value="yes" aria-pressed="true">Yes</button>
+        <button class="toggle-btn3" data-value="no" aria-pressed="false">No</button>
+      </div>
+      <input type="hidden" id="yesno-value3" name="yesno3" value="yes">
+      <div class="output" id="output3">Selected: Yes</div>
+    </div>
+  </div>
+
+  <div class="grid-row">
+    <div class="column" id="sell">
+      <h2 style="margin:6px 0">Old Item</h2>
+      <div id="e1">
+        <label><input type="number" id="e1_damage" value="100"/> Damage</label>
+        <label><input type="number" id="e1_health" value="1000"/> Health</label>
+        <label><input type="number" id="e1_dmult" value="0"/> Damage (%)</label>
+        <label><input type="number" id="e1_hmult" value="0"/> Health (%)</label>
+        <label><input type="number" id="e1_speed" value="0"/> Attack Speed (%)</label>
+        <label><input type="number" id="e1_double" value="0"/> Double Chance (%)</label>
+        <label><input type="number" id="e1_crit" value="0"/> Crit Chance (%)</label>
+        <label><input type="number" id="e1_critdmg" value="0"/> Crit Damage (%)</label>
+        <label><input type="number" id="e1_lifesteal" value="0"/> Lifesteal (%)</label>
+        <label><input type="number" id="e1_range" value="0"/> Range (%)</label>
+        <label><input type="number" id="e1_regen" value="0"/> Regen (%)</label>
+        <label><input type="number" id="e1_block" value="0"/> Block (%)</label>
+      </div>
+      <div class="stats" id="e1_stats"></div>
+    </div>
+
+    <div class="column" id="equip">
+      <h2 style="margin:6px 0">New Item</h2>
+      <div id="e2">
+        <label><input type="number" id="e2_damage" value="100"/> Damage</label>
+        <label><input type="number" id="e2_health" value="1000"/> Health</label>
+        <label><input type="number" id="e2_dmult" value="0"/> Damage (%)</label>
+        <label><input type="number" id="e2_hmult" value="0"/> Health (%)</label>
+        <label><input type="number" id="e2_speed" value="0"/> Attack Speed (%)</label>
+        <label><input type="number" id="e2_double" value="0"/> Double Chance (%)</label>
+        <label><input type="number" id="e2_crit" value="0"/> Crit Chance (%)</label>
+        <label><input type="number" id="e2_critdmg" value="0"/> Crit Damage (%)</label>
+        <label><input type="number" id="e2_lifesteal" value="0"/> Lifesteal (%)</label>
+        <label><input type="number" id="e2_range" value="0"/> Range (%)</label>
+        <label><input type="number" id="e2_regen" value="0"/> Regen (%)</label>
+        <label><input type="number" id="e2_block" value="0"/> Block (%)</label>
+      </div>
+      <div class="stats" id="e2_stats"></div>
+    </div>
+
+    <div class="column" id="hide3">
+      <h2 style="margin:6px 0">Player</h2>
+      <div id="e3">
+        <label><input type="number" id="e3_damage" value="1000"/> Damage</label>
+        <label><input type="number" id="e3_health" value="10000"/> Health</label>
+        <label><input type="number" id="e3_dmult" value="0"/> Damage (%)</label>
+        <label><input type="number" id="e3_hmult" value="0"/> Health (%)</label>
+        <label><input type="number" id="e3_speed" value="100"/> Attack Speed (%)</label>
+        <label><input type="number" id="e3_double" value="100"/> Double Chance (%)</label>
+        <label><input type="number" id="e3_crit" value="0"/> Crit Chance (%)</label>
+        <label><input type="number" id="e3_critdmg" value="0"/> Crit Damage (%)</label>
+        <label><input type="number" id="e3_lifesteal" value="50"/> Lifesteal (%)</label>
+        <label><input type="number" id="e3_range" value="0"/> Range (%)</label>
+        <label><input type="number" id="e3_regen" value="0"/> Regen (%)</label>
+        <label><input type="number" id="e3_block" value="0"/> Block (%)</label>
+      </div>
+      <div class="stats" id="e3_stats"></div>
+    </div>
+ 
+   <div class="column" id="hide4">
+      <h2 style="margin:6px 0">Mount</h2>
+      <div id="e4">
+        <label><input type="number" id="e4_damage" value="100"/> Damage</label>
+        <label><input type="number" id="e4_health" value="100"/> Health</label>
+        <label><input type="number" id="e4_dmult" value="0"/> Damage (%)</label>
+        <label><input type="number" id="e4_hmult" value="0"/> Health (%)</label>
+        <label><input type="number" id="e4_speed" value="0"/> Attack Speed (%)</label>
+        <label><input type="number" id="e4_double" value="0"/> Double Chance (%)</label>
+        <label><input type="number" id="e4_crit" value="0"/> Crit Chance (%)</label>
+        <label><input type="number" id="e4_critdmg" value="0"/> Crit Damage (%)</label>
+        <label><input type="number" id="e4_lifesteal" value="0"/> Lifesteal (%)</label>
+        <label><input type="number" id="e4_range" value="0"/> Range (%)</label>
+        <label><input type="number" id="e4_regen" value="0"/> Regen (%)</label>
+        <label><input type="number" id="e4_block" value="0"/> Block (%)</label>
+      </div>
+      <div class="stats" id="e4_stats"></div>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <button onclick="simulate()">Simulate Build</button>
+    <div id="result">Results will appear here.</div>
+    <div class="small-note">Note: This simulation is illustrative — tweak weights/formulas to match your game's mechanics.</div>
+  </div>
+
+  <script>
+    // Helpers
+    const $ = id => document.getElementById(id);
+
+    // Toggles
+    const buttons1 = Array.from(document.querySelectorAll('.toggle-btn1'));
+    const output1 = $('output1');
+    const hidden1 = $('yesno-value1');
+
+    const buttons2 = Array.from(document.querySelectorAll('.toggle-btn2'));
+    const output2 = $('output2');
+    const hidden2 = $('yesno-value2');
+
+    const buttons3 = Array.from(document.querySelectorAll('.toggle-btn3'));
+    const output3 = $('output3');
+    const hidden3 = $('yesno-value3');
+
+    const divitem1 = $('sell');
+    const divitem2 = $('equip');
+    const divplayer = $('hide3');
+    const divmount = $('hide4');
+
+    function setActiveGroup(buttons, hiddenInput, outputEl, value, onChange) {
+      buttons.forEach(btn => btn.setAttribute('aria-pressed', btn.dataset.value === value ? 'true' : 'false'));
+      hiddenInput.value = value;
+      if (outputEl) outputEl.textContent = 'Selected: ' + (value.charAt(0).toUpperCase() + value.slice(1));
+      if (typeof onChange === 'function') onChange(value);
+    }
+
+    function setActive1(v){ setActiveGroup(buttons1, hidden1, output1, v); }
+    function setActive2(v){ setActiveGroup(buttons2, hidden2, output2, v); }
+    function setActive3(v){
+      setActiveGroup(buttons3, hidden3, output3, v, (val) => {
+        const hide = (val === 'yes');
+        divplayer.classList.toggle('hidden', hide);
+        divmount.classList.toggle('hidden', hide);
+      });
+    }
+
+    function wireButtons(buttons, setActiveFn){
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => setActiveFn(btn.dataset.value));
+        btn.addEventListener('keydown', e => {
+          if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') { e.preventDefault(); setActiveFn(btn.dataset.value); return; }
+          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const idx = buttons.indexOf(btn);
+            const next = e.key === 'ArrowRight' ? (idx + 1) % buttons.length : (idx - 1 + buttons.length) % buttons.length;
+            buttons[next].focus();
+          }
+        });
+      });
+    }
+
+    wireButtons(buttons1, setActive1);
+    wireButtons(buttons2, setActive2);
+    wireButtons(buttons3, setActive3);
+
+    // Initialize toggle state from markup
+    const init1 = buttons1.find(b => b.getAttribute('aria-pressed') === 'true') || buttons1[0];
+    const init2 = buttons2.find(b => b.getAttribute('aria-pressed') === 'true') || buttons2[0];
+    const init3 = buttons3.find(b => b.getAttribute('aria-pressed') === 'true') || buttons3[0];
+    if (init1) setActive1(init1.dataset.value);
+    if (init2) setActive2(init2.dataset.value);
+    if (init3) setActive3(init3.dataset.value);
+
+    // Data helpers
+    function parseInputValue(id) {
+      const el = $(id);
+      if (!el) return 0;
+      const v = parseFloat(el.value);
+      return Number.isFinite(v) ? v : 0;
+    }
+
+    function getStats(prefix) {
+      // returns fields normalized as decimals where appropriate
+      const damage = parseInputValue(prefix + '_damage');
+      const health = parseInputValue(prefix + '_health');
+      const dmult = parseInputValue(prefix + '_dmult') / 100;
+      const hmult = parseInputValue(prefix + '_hmult') / 100;
+      const speed = parseInputValue(prefix + '_speed') / 100;
+      const dbl = parseInputValue(prefix + '_double') / 100;
+      const crit = parseInputValue(prefix + '_crit') / 100;
+      const critdmg = (parseInputValue(prefix + '_critdmg') / 100) + 0.2; // base crit damage +20%
+      const lifesteal = parseInputValue(prefix + '_lifesteal') / 100;
+      const range = parseInputValue(prefix + '_range') / 100;
+      const regen = parseInputValue(prefix + '_regen') / 100;
+      const block = parseInputValue(prefix + '_block') / 100;
+
+      return { damage, health, dmult, hmult, speed, double: dbl, crit, critdmg, lifesteal, range, regen, block };
+    }
+
+// Core formulas
+function computeDPS(p) {
+  // defensive: ensure numeric values (p fields are expected to be normalized decimals where appropriate)
+  const dmg = Number(p.damage) || 0;
+  let dbl = Number(p.double) || 0;
+  const crit = Number(p.crit) || 0;
+  const critdmg = Number(p.critdmg) || 0;
+  const spd = Number(p.speed) || 0;
+
+  if (dbl > 1) {
+    dbl = 1;
+  }
+
+  // effective damage (ED) then DPS estimate
+  const ed = dmg * ((1 + dbl) * (1 + (crit * critdmg)));
+  return ed * 0.588 * (1 + spd);
+}
+
+function computeDPS2(i1, i2, player, mount) {
+  // Estimate build DPS after swapping item i1 -> i2.
+  // All inputs should be "stat objects" with numeric fields (damage, dmult, speed, double, crit, critdmg, etc).
+  // This function is intentionally conservative and defensive.
+  try {
+    // normalize numeric inputs (fall back to 0)
+    const pDamage = Number(player.damage) || 0;
+    const pDmult = Number(player.dmult) || 0;
+    const pSpeed = Number(player.speed) || 0;
+    const pDouble = Number(player.double) || 0;
+    const pCrit = Number(player.crit) || 0;
+    const pCritDmg = Number(player.critdmg) || 0;
+
+    const mDamage = Number(mount.damage / 100) || 0;
+    const mDmult = Number(mount.dmult) || 0;
+
+    const i1Damage = Number(i1.damage) || 0;
+    const i1Dmult = Number(i1.dmult) || 0;
+    const i1Speed = Number(i1.speed) || 0;
+    const i1Double = Number(i1.double) || 0;
+    const i1Crit = Number(i1.crit) || 0;
+    const i1CritDmg = Number(i1.critdmg) || 0;
+
+    const i2Damage = Number(i2.damage) || 0;
+    const i2Dmult = Number(i2.dmult) || 0;
+    const i2Speed = Number(i2.speed) || 0;
+    const i2Double = Number(i2.double) || 0;
+    const i2Crit = Number(i2.crit) || 0;
+    const i2CritDmg = Number(i2.critdmg) || 0;
+
+    // Build baseline combined raw damage (player + mount), then swap item contribution
+    const baseRawDamage = pDamage / (1 + pDmult + mDamage + mDmult);
+    const swappedRawDamage = baseRawDamage - i1Damage + i2Damage;
+
+    // Build total damage multiplier (sum of multipliers from player, mount and item differences)
+    // Note: dmult fields are expected to be decimals (e.g. 0.25 for +25%).
+    const totalMult = 1 + pDmult + mDamage + mDmult - i1Dmult + i2Dmult;
+
+    const finalDamage = swappedRawDamage * totalMult;
+
+    // Combined secondary stats after swap (player + item differences)
+    let finalDouble = pDouble - i1Double + i2Double;
+    if (finalDouble > 1) {
+      finalDouble = 1;
+    }
+    const finalCrit = pCrit - i1Crit + i2Crit;
+    const finalCritDmg = pCritDmg - i1CritDmg + i2CritDmg;
+    const finalSpeed = pSpeed - i1Speed + i2Speed;
+
+    // Use the same ED -> DPS formula as computeDPS but with combined stats
+    const ed = finalDamage * ((1 + finalDouble) * (1 + (finalCrit * finalCritDmg)));
+    const dps = ed * 0.588 * (1 + finalSpeed);
+
+    return Number.isFinite(dps) ? dps : 0;
+  } catch (err) {
+    return 0;
+  }
+}
+
+function computeSustain(p, dps) {
+  const ls = Number(p.lifesteal) || 0;
+  const regen = Number(p.regen) || 0;
+  const hp = Number(p.health) || 0;
+  const d = Number(dps) || 0;
+  return d * ls + hp * regen;
+}
+
+function computeSustain2(i1, i2, p, m, dps) {
+  // estimate sustain difference after swap; keep defensive
+  const d = Number(dps) || 0;
+  const lsDiff = (Number(p.lifesteal) || 0) - (Number(i1.lifesteal) || 0) + (Number(i2.lifesteal) || 0);
+  const regenDiff = (Number(p.regen) || 0) - (Number(i1.regen) || 0) + (Number(i2.regen) || 0);
+
+  // Build baseline combined raw health (player + mount), then swap item contribution
+  const baseRawHealth = (Number(p.health) || 0) / (1 + (Number(p.hmult) || 0) + (Number(m.health) || 0) + (Number(m.hmult) || 0));
+  const swappedRawHealth = baseRawHealth - (Number(i1.health) || 0) + (Number(i2.health) || 0);
+
+  // Build total health multiplier (sum of multipliers from player, mount and item differences)
+  // Note: hmult fields are expected to be decimals (e.g. 0.25 for +25%).
+  const totalHMult = 1 + (Number(p.hmult) || 0) + (Number(m.health) || 0) + (Number(m.hmult) || 0) - (Number(i1.hmult) || 0) + (Number(i2.hmult) || 0);
+
+  const finalHealth = swappedRawHealth * totalHMult;
+  return d * lsDiff + finalHealth * regenDiff;
+}
+
+// Quality calculators (weights can be tuned)
+function computeQA(p) {
+  return (p.dmult/0.15) + (p.hmult/0.15) + (p.speed/0.4) + (p.double/0.4) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.2) + (p.range/0.15) + (p.regen/0.06) + (p.block/0.07);
+}
+function computePQA(p) {
+  return (p.dmult/0.1) + (p.hmult/0.1) + (p.speed/0.2) + (p.double/0.2) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.1) + (p.range/0.1) + (p.regen/0.04) + (p.block/0.07);
+}
+function compute2QA(p) {
+  return (p.dmult/0.3) + (p.hmult/0.3) + (p.speed/0.2) + (p.double/0.2) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.1) + (p.range/0.15) + (p.regen/0.06) + (p.block/0.07);
+}
+    function simulate() {
+      // read inputs
+      const item1 = getStats('e1');
+      const item2 = getStats('e2');
+      const player = getStats('e3');
+      const mount = getStats('e4');
+
+      // toggles
+      const itemsOnly = hidden3 && hidden3.value === 'yes';
+      const doubleSubstats = hidden2 && hidden2.value === 'yes';
+      const preferred = hidden1 && hidden1.value === 'yes';
+
+      // choose QA function
+      let calcQA = computeQA;
+      if (preferred) calcQA = doubleSubstats ? compute2QA : computePQA;
+
+      // compute qualities
+      const iqa1 = calcQA(item1);
+      const iqa2 = calcQA(item2);
+      const pqa = calcQA(player);
+      const sqa1 = computeQA(item1);
+      const sqa2 = computeQA(item2);
+      const sqa = computeQA(player); 
+
+      // build result text
+      let resultText = '';
+      resultText += `Item 1 Quality: ${iqa1.toFixed(2)}\n`;
+      resultText += `Item 2 Quality: ${iqa2.toFixed(2)}\n\n`;
+
+      // prepare variables for build-level comparison
+      let keepBuildDPS = 0, swapBuildDPS = 0, keepBuildSustain = 0, swapBuildSustain = 0;
+
+      if (!itemsOnly) {
+        resultText += `Build Quality: ${pqa.toFixed(2)}\n\n`;
+
+        // baseline build DPS = player + mount contributions
+        const playerDps = computeDPS(player);
+        keepBuildDPS = (Number.isFinite(playerDps) ? playerDps : 0);
+
+        // estimate swapped build DPS (swap item1 -> item2)
+        swapBuildDPS = computeDPS2(item1, item2, player, mount);
+        if (!Number.isFinite(swapBuildDPS)) swapBuildDPS = 0;
+
+        resultText += `Build DPS (item 1): ${formatNumber(keepBuildDPS)}\n`;
+        resultText += `Build DPS (item 2): ${formatNumber(swapBuildDPS)}\n\n`;
+
+        // sustain uses DPS and entity stats
+        keepBuildSustain = computeSustain(player, playerDps);
+        if (!Number.isFinite(keepBuildSustain)) keepBuildSustain = 0;
+
+        swapBuildSustain = computeSustain2(item1, item2, player, mount, swapBuildDPS);
+        if (!Number.isFinite(swapBuildSustain)) swapBuildSustain = 0;
+
+        resultText += `Build Sustain (item 1): ${formatNumber(keepBuildSustain)}\n`;
+        resultText += `Build Sustain (item 2): ${formatNumber(swapBuildSustain)}\n\n`;
+      } else {
+    //    resultText += 'Items only = yes → ignoring player and mount in totals.\n\n';
+      }
+
+    //  resultText += `Double substats: ${doubleSubstats ? 'Yes' : 'No'}\n`;
+    //  resultText += `Preferred substats focus: ${preferred ? 'Yes' : 'No'}\n\n`;
+
+      // scoring: combine DPS, sustain and quality (you can adjust weights)
+      let score1 = iqa1; // default when itemsOnly
+      let score2 = iqa2;
+      let rate1 = sqa1;
+      let rate2 = sqa2;
+      let rate3 = sqa;
+
+
+      if (!itemsOnly) {
+        score1 = keepBuildDPS + keepBuildSustain;
+        score2 = swapBuildDPS + swapBuildSustain;
+        resultText += `Build 1 score: ${formatNumber(score1)} \n`;
+        resultText += `Build 2 score: ${formatNumber(score2)} \n\n`;
+        rate1 = rate1 * 100 / 12;
+        rate2 = rate2 * 100 / 12;
+      } else {
+        rate1 = rate1 * 100;
+        rate2 = rate2 * 100;
+      }
+        rate3 = rate3 * 100 / 12;
+      if (doubleSubstats) {
+        rate1 = rate1 / 2;
+        rate2 = rate2 / 2;
+        rate3 = rate3 / 2;
+      }
+
+      if (preferred) {
+        if (itemsOnly) {
+          resultText += `Item 1 substats: ${formatNumber(rate1)} % \n`;
+          resultText += `Item 2 substats: ${formatNumber(rate2)} % \n\n`;
+        } else {
+          resultText += `Build substats: ${formatNumber(rate3)} % \n\n`;
+        }
+      }
+
+      divitem1.classList.remove('better','worse');
+      divitem2.classList.remove('better','worse');
+
+      if (score1 > score2) {
+        resultText += 'Recommendation: Keep Item 1 (higher combined score).\n';
+        divitem1.classList.add('better');
+        divitem2.classList.add('worse');
+      } else if (score2 > score1) {
+        resultText += 'Recommendation: Keep Item 2 (higher combined score).\n';
+        divitem2.classList.add('better');
+        divitem1.classList.add('worse');
+      } else {
+        resultText += 'Recommendation: Both items are roughly equal.\n';
+      }
+
+      resultText += '\n';
+      resultText += (itemsOnly ? 'Since items only we ignore player and mount.\n' : 'Using player and mount for overall build.\n');
+      resultText += (doubleSubstats ? 'Assuming double substats.\n' : 'Assuming single substats.\n');
+      resultText += (preferred ? 'Focused on preferred substats.\n' : 'Looking at overall stats.\n');
+
+      // small stats panels
+      $('e3_stats').textContent = `Player Quality ${pqa.toFixed(3)}`;
+
+      $('result').textContent = resultText;
+    }
+
+    // Utility functions
+    function formatNumber(num) {
+      const n = Number(num);
+      if (!isFinite(n)) return '0.00';
+      const abs = Math.abs(n);
+      if (abs >= 1_000_000) return (n/1_000_000).toFixed(2) + 'M';
+      if (abs >= 1_000) return (n/1_000).toFixed(2) + 'K';
+      return n.toFixed(2);
+    }
+
+    function downloadSample() {
+      const url = 'https://raw.githubusercontent.com/victorygale/fm_tools/main/data-which.json';
+      window.open(url, '_blank');
+    }
+
+    // JSON load / fill
+    function loadJson(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          fillPlayerInputs('e1', data.itemOld || {});
+          fillPlayerInputs('e2', data.itemNew || {});
+          fillPlayerInputs('e3', data.player || {});
+          fillPlayerInputs('e4', data.mount || {});
+          if (data.options) {
+            if (typeof data.options.preferredSubstats !== 'undefined') setActive1(String(data.options.preferredSubstats));
+            if (typeof data.options.doubleSubstats !== 'undefined') setActive2(String(data.options.doubleSubstats));
+            if (typeof data.options.itemsOnly !== 'undefined') setActive3(String(data.options.itemsOnly));
+          }
+          simulate();
+        } catch (err) {
+          alert('Invalid JSON file format.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function fillPlayerInputs(prefix, stats) {
+      const keys = ['damage','health','dmult','hmult','speed','double','crit','critdmg','lifesteal','range','regen','block'];
+      keys.forEach(k => {
+        if (typeof stats[k] !== 'undefined' && stats[k] !== null) {
+          const el = $(prefix + '_' + k);
+          if (el) el.value = stats[k];
+        }
+      });
+    }
+  </script>
+</body>
+</html>
