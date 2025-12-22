@@ -20,6 +20,8 @@
     input[type="number"], input[type="file"] { width: 120px; margin-bottom: 8px; }
     button { margin-top: 12px; padding: 8px 14px; }
     #result { margin-top: 18px; font-weight: 600; white-space: pre-wrap; background:#fff; padding:12px; border-radius:8px; border:1px solid #e6eef8; }
+    #instructions { white-space: pre-wrap; }
+    #changelogs { white-space: pre-wrap; }
     .stats { margin-top: 8px; font-style: italic; color:var(--muted) }
     .nav {
       display: grid;
@@ -33,6 +35,7 @@
       border: 1px solid #dfe6f6;
       border-radius: 10px;
       padding: 12px;
+      text-decoration: none;
       text-align: center;
       color: var(--text);
       font-weight: 600;
@@ -68,13 +71,23 @@
   <h1>⁉️ Which is better?</h1>
   <h2 style="font-weight:normal">Help decide what to keep — Kayzee Edit</h2>
 
+  <div style="margin-top:12px;">
+    <button onclick="instruct()">Show/Hide Instructions</button>
+    <div id="instructions">Instructions will appear here.</div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <button onclick="changelog()">Show/hide Changeling</button>
+    <div id="changelogs">Changelogs will appear here.</div>
+  </div>
+
   <h3>📁 Upload or Download Player Stats</h3>
   <input type="file" id="uploadJson" accept=".json" onchange="loadJson(this)" />
   <button onclick="downloadSample()">Download Sample Data</button>
 
   <div class="nav" aria-hidden="false">
     <div class="carde" role="region" aria-label="Preferred substats">
-      <div style="font-size:0.95rem">Preferred Substats:<br><small style="font-weight:400">speed, double, range</small></div>
+      <div style="font-size:0.95rem">Preferred Substats:</div>
       <div class="toggle" role="tablist" aria-label="Preferred substats">
         <button class="toggle-btn1" data-value="yes" aria-pressed="true">Yes</button>
         <button class="toggle-btn1" data-value="no" aria-pressed="false">No</button>
@@ -108,8 +121,8 @@
     <div class="column" id="sell">
       <h2 style="margin:6px 0">Old Item</h2>
       <div id="e1">
-        <label><input type="number" id="e1_damage" value="100"/> Damage</label>
-        <label><input type="number" id="e1_health" value="1000"/> Health</label>
+        <label><input type="number" id="e1_damage" value="0"/> Damage</label>
+        <label><input type="number" id="e1_health" value="0"/> Health</label>
         <label><input type="number" id="e1_dmult" value="0"/> Damage (%)</label>
         <label><input type="number" id="e1_hmult" value="0"/> Health (%)</label>
         <label><input type="number" id="e1_speed" value="0"/> Attack Speed (%)</label>
@@ -120,6 +133,8 @@
         <label><input type="number" id="e1_range" value="0"/> Range (%)</label>
         <label><input type="number" id="e1_regen" value="0"/> Regen (%)</label>
         <label><input type="number" id="e1_block" value="0"/> Block (%)</label>
+        <label><input type="number" id="e1_skill" value="0"/> Skill Damage (%)</label>
+        <label><input type="number" id="e1_cooldown" value="0"/> Cooldown (%)</label>
       </div>
       <div class="stats" id="e1_stats"></div>
     </div>
@@ -127,8 +142,8 @@
     <div class="column" id="equip">
       <h2 style="margin:6px 0">New Item</h2>
       <div id="e2">
-        <label><input type="number" id="e2_damage" value="100"/> Damage</label>
-        <label><input type="number" id="e2_health" value="1000"/> Health</label>
+        <label><input type="number" id="e2_damage" value="0"/> Damage</label>
+        <label><input type="number" id="e2_health" value="0"/> Health</label>
         <label><input type="number" id="e2_dmult" value="0"/> Damage (%)</label>
         <label><input type="number" id="e2_hmult" value="0"/> Health (%)</label>
         <label><input type="number" id="e2_speed" value="0"/> Attack Speed (%)</label>
@@ -139,6 +154,8 @@
         <label><input type="number" id="e2_range" value="0"/> Range (%)</label>
         <label><input type="number" id="e2_regen" value="0"/> Regen (%)</label>
         <label><input type="number" id="e2_block" value="0"/> Block (%)</label>
+        <label><input type="number" id="e2_skill" value="0"/> Skill Damage (%)</label>
+        <label><input type="number" id="e2_cooldown" value="0"/> Cooldown (%)</label>
       </div>
       <div class="stats" id="e2_stats"></div>
     </div>
@@ -146,18 +163,20 @@
     <div class="column" id="hide3">
       <h2 style="margin:6px 0">Player</h2>
       <div id="e3">
-        <label><input type="number" id="e3_damage" value="1000"/> Damage</label>
-        <label><input type="number" id="e3_health" value="10000"/> Health</label>
+        <label><input type="number" id="e3_damage" value="0"/> Damage</label>
+        <label><input type="number" id="e3_health" value="0"/> Health</label>
         <label><input type="number" id="e3_dmult" value="0"/> Damage (%)</label>
         <label><input type="number" id="e3_hmult" value="0"/> Health (%)</label>
-        <label><input type="number" id="e3_speed" value="100"/> Attack Speed (%)</label>
-        <label><input type="number" id="e3_double" value="100"/> Double Chance (%)</label>
+        <label><input type="number" id="e3_speed" value="0"/> Attack Speed (%)</label>
+        <label><input type="number" id="e3_double" value="0"/> Double Chance (%)</label>
         <label><input type="number" id="e3_crit" value="0"/> Crit Chance (%)</label>
         <label><input type="number" id="e3_critdmg" value="0"/> Crit Damage (%)</label>
-        <label><input type="number" id="e3_lifesteal" value="50"/> Lifesteal (%)</label>
+        <label><input type="number" id="e3_lifesteal" value="0"/> Lifesteal (%)</label>
         <label><input type="number" id="e3_range" value="0"/> Range (%)</label>
         <label><input type="number" id="e3_regen" value="0"/> Regen (%)</label>
         <label><input type="number" id="e3_block" value="0"/> Block (%)</label>
+        <label><input type="number" id="e3_skill" value="0"/> Skill Damage (%)</label>
+        <label><input type="number" id="e3_cooldown" value="0"/> Cooldown (%)</label>
       </div>
       <div class="stats" id="e3_stats"></div>
     </div>
@@ -165,8 +184,8 @@
     <div class="column" id="hide4">
       <h2 style="margin:6px 0">Mount</h2>
       <div id="e4">
-        <label><input type="number" id="e4_damage" value="100"/> Damage</label>
-        <label><input type="number" id="e4_health" value="100"/> Health</label>
+        <label><input type="number" id="e4_damage" value="0"/> Damage</label>
+        <label><input type="number" id="e4_health" value="0"/> Health</label>
         <label><input type="number" id="e4_dmult" value="0"/> Damage (%)</label>
         <label><input type="number" id="e4_hmult" value="0"/> Health (%)</label>
         <label><input type="number" id="e4_speed" value="0"/> Attack Speed (%)</label>
@@ -177,6 +196,8 @@
         <label><input type="number" id="e4_range" value="0"/> Range (%)</label>
         <label><input type="number" id="e4_regen" value="0"/> Regen (%)</label>
         <label><input type="number" id="e4_block" value="0"/> Block (%)</label>
+        <label><input type="number" id="e4_skill" value="0"/> Skill Damage (%)</label>
+        <label><input type="number" id="e4_cooldown" value="0"/> Cooldown (%)</label>
       </div>
       <div class="stats" id="e4_stats"></div>
     </div>
@@ -185,7 +206,6 @@
   <div style="margin-top:12px;">
     <button onclick="simulate()">Simulate Build</button>
     <div id="result">Results will appear here.</div>
-    <div class="small-note">Note: This simulation is illustrative — tweak weights/formulas to match your game's mechanics.</div>
   </div>
 
   <div class="nav" style="margin-top:20px;">
@@ -287,8 +307,10 @@
       const range = parseInputValue(prefix + '_range') / 100;
       const regen = parseInputValue(prefix + '_regen') / 100;
       const block = parseInputValue(prefix + '_block') / 100;
+      const skill = parseInputValue(prefix + '_skill') / 100;
+      const cooldown = parseInputValue(prefix + '_cooldown') / 100;
 
-      return { damage, health, dmult, hmult, speed, double: dbl, crit, critdmg, lifesteal, range, regen, block };
+      return { damage, health, dmult, hmult, speed, double: dbl, crit, critdmg, lifesteal, range, regen, block, skill, cooldown };
     }
 
     // Core formulas
@@ -296,17 +318,20 @@
       // defensive: ensure numeric values (p fields are expected to be normalized decimals where appropriate)
       const dmg = Number(p.damage) || 0;
       let dbl = Number(p.double) || 0;
-      const crit = Number(p.crit) || 0;
+      let crit = Number(p.crit) || 0;
       const critdmg = Number(p.critdmg) || 0;
-      const spd = Number(p.speed) || 0;
+      let spd = Number(p.speed) || 0;
 
-      if (dbl > 1) {
-        dbl = 1;
-      }
+      dbl = Math.max(0, Math.min(1, dbl));
+      dbl = 1 + dbl;
 
-      // effective damage (ED) then DPS estimate
-      const ed = dmg * ((1 + dbl) * (1 + (crit * critdmg)));
-      return ed * 0.588 * (1 + spd);
+      crit = Math.max(0, Math.min(1, crit));
+      crit = 1 + (crit * critdmg);
+
+      const denom = Math.floor(17 / (1 + spd));
+      spd = (denom <= 0) ? 0 : 10 / denom;
+
+      return dmg * dbl * crit * spd;
     }
 
     function computeDPS2(i1, i2, player, mount) {
@@ -351,16 +376,17 @@
 
         // Combined secondary stats after swap (player + item differences)
         let finalDouble = pDouble - i1Double + i2Double;
-        if (finalDouble > 1) {
-          finalDouble = 1;
-        }
-        const finalCrit = pCrit - i1Crit + i2Crit;
+        finalDouble = Math.max(0, Math.min(1, finalDouble));
+        finalDouble = 1 + finalDouble;
+        let finalCrit = pCrit - i1Crit + i2Crit;
+        finalCrit = Math.max(0, Math.min(1, finalCrit));
         const finalCritDmg = pCritDmg - i1CritDmg + i2CritDmg;
-        const finalSpeed = pSpeed - i1Speed + i2Speed;
+        finalCrit = 1 + (finalCrit * finalCritDmg);
+        let finalSpeed = pSpeed - i1Speed + i2Speed;
+        const denom = Math.floor(17 / (1 + finalSpeed));
+        finalSpeed = (denom <= 0) ? 0 : 10 / denom;
 
-        // Use the same ED -> DPS formula as computeDPS but with combined stats
-        const ed = finalDamage * ((1 + finalDouble) * (1 + (finalCrit * finalCritDmg)));
-        const dps = ed * 0.588 * (1 + finalSpeed);
+        const dps = finalDamage * finalDouble * finalCrit * finalSpeed;
 
         return Number.isFinite(dps) ? dps : 0;
       } catch (err) {
@@ -396,13 +422,13 @@
 
     // Quality calculators (weights can be tuned)
     function computeQA(p) {
-      return (p.dmult/0.15) + (p.hmult/0.15) + (p.speed/0.4) + (p.double/0.4) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.2) + (p.range/0.15) + (p.regen/0.06) + (p.block/0.07);
+      return (p.dmult/0.15) + (p.hmult/0.15) + (p.speed/0.4) + (p.double/0.4) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.2) + (p.range/0.15) + (p.regen/0.06) + (p.block/0.05) + (p.skill/0.3) + (p.cooldown/0.07);
     }
     function computePQA(p) {
-      return (p.dmult/0.1) + (p.hmult/0.1) + (p.speed/0.2) + (p.double/0.2) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.1) + (p.range/0.1) + (p.regen/0.04) + (p.block/0.07);
+      return (p.dmult/0.1) + (p.hmult/0.1) + (p.speed/0.2) + (p.double/0.2) + (p.crit/0.24) + ((p.critdmg - 0.2)/2) + (p.lifesteal/0.1) + (p.range/0.15) + (p.regen/0.04) + (p.block/0.05) + (p.skill/0.6) + (p.cooldown/0.14);
     }
     function compute2QA(p) {
-      return (p.dmult/0.3) + (p.hmult/0.3) + (p.speed/0.2) + (p.double/0.2) + (p.crit/0.12) + ((p.critdmg - 0.2)/1) + (p.lifesteal/0.1) + (p.range/0.15) + (p.regen/0.06) + (p.block/0.07);
+      return (p.dmult/0.3) + (p.hmult/0.3) + (p.speed/0.2) + (p.double/0.2) + (p.crit/0.06) + ((p.critdmg - 0.2)/0.5) + (p.lifesteal/0.1) + (p.range/0.15) + (p.regen/0.06) + (p.block/0.05) + (p.skill/0.6) + (p.cooldown/0.14);
     }
 
     function simulate() {
@@ -579,7 +605,7 @@
     }
 
     function fillPlayerInputs(prefix, stats) {
-      const keys = ['damage','health','dmult','hmult','speed','double','crit','critdmg','lifesteal','range','regen','block'];
+      const keys = ['damage','health','dmult','hmult','speed','double','crit','critdmg','lifesteal','range','regen','block','skill','cooldown'];
       keys.forEach(k => {
         if (typeof stats[k] !== 'undefined' && stats[k] !== null) {
           const el = $(prefix + '_' + k);
@@ -587,6 +613,34 @@
         }
       });
     }
+
+    function instruct() {
+      let instructText = '';
+	if ($('instructions').textContent === 'Instructions will appear here.') {
+          instructText += `1. Preferred substats assumes the default speed, double and life steal build.\n`;
+          instructText += ` - This is +100% for speed, double and life, +50% for damage, health and regeneration and -50% for crit and skill related substats.\n`;
+          instructText += `2. Double substats will adjust quality rating and add crit substats to build preference.\n`;
+          instructText += ` - This is +100% for crit as well, and -50% for damage, health and skill related substats.\n`;
+          instructText += `3. Items only will just compare the quality of 2 items instead of a full build score which is DPS + heals.`;
+        } else {
+          instructText = 'Instructions will appear here.';
+        }
+      $('instructions').textContent = instructText;
+    }
+
+    function changelog() {
+      let changelogText = '';
+	if ($('changelogs').textContent === 'Changelogs will appear here.') {
+          changelogText += `Added instructions and changelogs.\n`;
+          changelogText += `Updated DPS with attack speed step function.\n`;
+          changelogText += `Added skill damage and cooldown for item substat quality.\n`;
+          changelogText += `Adjusted preferred substat weightings.\n`;
+        } else {
+          changelogText = 'Changelogs will appear here.';
+        }
+      $('changelogs').textContent = changelogText;
+    }
+
   </script>
 </body>
 </html>
