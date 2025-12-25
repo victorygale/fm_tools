@@ -7,21 +7,22 @@
   <style>
     :root{
       --accent: #2563eb;
-      --muted: #6b7280;
-      --bg: #f7f9fc;
-      --panel: #ffffff;
-      --text: #0f172a;
+      --muted: #1b3240;
+      --bg: #0f372a;
+      --panel: #178950;
+      --text: #ffffff;
       --good-bg: #e7f2ff;
       --bad-bg: #fff0f0;
     }
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; color: var(--text); }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #043414; color: var(--text); }
     h2 { margin-top: 10px; }
     label { display: block; margin: 6px 0 2px; }
     input[type="number"], input[type="file"] { width: 120px; margin-bottom: 8px; }
     button { margin-top: 12px; padding: 8px 14px; }
-    #result { margin-top: 18px; font-weight: 600; white-space: pre-wrap; background:#fff; padding:12px; border-radius:8px; border:1px solid #e6eef8; }
+    #result { margin-top: 18px; font-weight: 600; white-space: pre-wrap; background:#053; padding:12px; border-radius:8px; border:1px solid #e6eef8; }
     #instructions { white-space: pre-wrap; }
     #changelogs { white-space: pre-wrap; }
+    #attackspeeds { white-space: pre-wrap; }
     .stats { margin-top: 8px; font-style: italic; color:var(--muted) }
     .nav {
       display: grid;
@@ -32,7 +33,7 @@
     }
     .card, .carde{
       background: var(--panel);
-      border: 1px solid #dfe6f6;
+      border: 1px solid #dff6e6;
       border-radius: 10px;
       padding: 12px;
       text-decoration: none;
@@ -43,10 +44,10 @@
     }
     .card:hover {
       background: var(--accent);
-      color: #081326;
+      color: #082316;
       transform: translateY(-4px);
     }
-    .toggle { display:inline-flex; border-radius:8px; background: #eef2ff; padding: 4px; gap:4px; }
+    .toggle { display:inline-flex; border-radius:8px; background: #1e623f; padding: 4px; gap:4px; }
     .toggle button{
       border: none;
       background: transparent;
@@ -58,7 +59,7 @@
     }
     .toggle button[aria-pressed="true"]{ background: var(--accent); color: #fff; }
     .output { margin-top:8px; font-size:0.95rem; color:var(--muted); }
-    .better { background: var(--good-bg); border: 1px solid #cfe6ff; border-radius:8px; padding:6px; }
+    .better { background: var(--good-bg); border: 1px solid #0f360f; border-radius:8px; padding:6px; }
     .worse { background: var(--bad-bg); border: 1px solid #ffdede; border-radius:8px; padding:6px; }
     .hidden { display: none !important; }
     .small-note { font-size:0.9rem; color:var(--muted); margin-top:8px; }
@@ -77,8 +78,13 @@
   </div>
 
   <div style="margin-top:12px;">
-    <button onclick="changelog()">Show/hide Changeling</button>
+    <button onclick="changelog()">Show/hide Changelogs</button>
     <div id="changelogs">Changelogs will appear here.</div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <button onclick="attackspeed()">Show/hide Attack Speed Table</button>
+    <div id="attackspeeds">Attack speed summary will appear here.</div>
   </div>
 
   <h3>📁 Upload or Download Player Stats</h3>
@@ -328,7 +334,7 @@
       crit = Math.max(0, Math.min(1, crit));
       crit = 1 + (crit * critdmg);
 
-      const denom = Math.floor(17 / (1 + spd));
+      const denom = Math.ceil(17 / (1 + spd));
       spd = (denom <= 0) ? 0 : 10 / denom;
 
       return dmg * dbl * crit * spd;
@@ -631,6 +637,8 @@
     function changelog() {
       let changelogText = '';
 	if ($('changelogs').textContent === 'Changelogs will appear here.') {
+          changelogText += `Changed the colours.\n`;
+          changelogText += `Updated attack speed calculation and added table.\n`;
           changelogText += `Added instructions and changelogs.\n`;
           changelogText += `Updated DPS with attack speed step function.\n`;
           changelogText += `Added skill damage and cooldown for item substat quality.\n`;
@@ -639,6 +647,32 @@
           changelogText = 'Changelogs will appear here.';
         }
       $('changelogs').textContent = changelogText;
+    }
+
+    function attackspeed() {
+      let attackspeedText = '';
+	if ($('attackspeeds').textContent === 'Attack speed summary will appear here.') {
+          attackspeedText += `Attack Speed || Time (s)\n`;
+          attackspeedText += `===================\n`;
+          attackspeedText += `     <6.3%       ||   1.7\n`;
+          attackspeedText += `     <13.4%     ||   1.6\n`;
+          attackspeedText += `     <21.5%     ||   1.5\n`;
+          attackspeedText += `     <30.8%     ||   1.4\n`;
+          attackspeedText += `     <41.7%     ||   1.3\n`;
+          attackspeedText += `     <54.6%     ||   1.2\n`;
+          attackspeedText += `     <70.0%     ||   1.1\n`;
+          attackspeedText += `     <88.9%     ||   1.0\n`;
+          attackspeedText += `     <112.5%   ||   0.9\n`;
+          attackspeedText += `     <142.9%   ||   0.8\n`;
+          attackspeedText += `     <183.4%   ||   0.7\n`;
+          attackspeedText += `     <240.0%   ||   0.6\n`;
+          attackspeedText += `     <325.0%   ||   0.5\n`;
+          attackspeedText += `     <466.7%   ||   0.4\n`;
+          attackspeedText += `     >466.7%   ||   0.3\n`;
+        } else {
+          attackspeedText = 'Attack speed summary will appear here.';
+        }
+      $('attackspeeds').textContent = attackspeedText;
     }
 
   </script>
