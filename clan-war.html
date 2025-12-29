@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Clan War Tool</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg: #132;
+      --panel: #143;
+      --accent: #5ed;
+      --text: #ef2;
+      --muted: #adb;
+      --good-bg: #eff;
+      --bad-bg: #fee;
+    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #132; color: var(--text); }
+    h2 { margin-top: 10px; }
+    label { display: block; margin: 6px 0 2px; }
+    button { margin-top: 12px; padding: 8px 14px; }
+    #result { margin-top: 18px; font-weight: 600; white-space: pre-wrap; background:#053; padding:12px; border-radius:8px; border:1px solid #e6eef8; }
+    #schedule { white-space: pre-wrap; margin-top:8px; }
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 0 auto 12px;
+      padding: 8px 0;
+    }
+    .card{
+      background: var(--panel);
+      border: 1px solid #dff6e6;
+      border-radius: 10px;
+      padding: 12px;
+      text-decoration: none;
+      text-align: center;
+      color: var(--text);
+      font-weight: 600;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .card:hover {
+      background: var(--accent);
+      color: #082316;
+      transform: translateY(-4px);
+    }
+    .small-note { font-size:0.9rem; color:var(--muted); margin-top:8px; }
+  </style>
+</head>
+
+<body>
+  <h1>⚔️ Clan War Tool</h1>
+  <h2 style="font-weight:normal">Help decide what to do — Kayzee Edit</h2>
+
+  <div style="margin-top:12px;">
+    <button onclick="schedule()">Show/hide Clan War Schedule</button>
+    <div id="schedule">Clan war schedule will appear here.</div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <button onclick="timecheck()">Check Time (UTC+0)</button>
+    <div id="result">Results will appear here.</div>
+  </div>
+
+  <div class="nav" style="margin-top:20px;">
+    <a href="https://octavian-mirica.github.io/fm-tools/" class="card" target="_blank" rel="noopener noreferrer">
+      <div class="icon">🐈‍⬛</div>
+      <div>Fm Tools by Fitz</div>
+    </a>
+    <a href="https://victorygale.github.io/fm_tools/" class="card" target="_blank" rel="noopener noreferrer">
+      <div class="icon">𖨆</div>
+      <div>FM Tools Kayzee Edit</div>
+    </a>
+  </div>
+
+  <script>
+    // Minimal helper
+    const $ = id => document.getElementById(id);
+
+    // Clan War schedule constants
+    const CLAN_SCHEDULE = [
+      'Day 1: Hammer, Skill, Tech',
+      'Day 2: Forge, Keys, Eggs, Pet',
+      'Day 3: Hammer, Skill, Mount',
+      'Day 4: Forge, Tech, Eggs, Pet',
+      'Day 5: Hammer, Keys, Mount',
+      'Day 6: Fight Day',
+      'Day 7: Claim Rewards'
+    ];
+
+    // Return structured info and update UI for a given cycle day (1..7)
+    function switchClanDay(day) {
+      const d = Number(day);
+      if (!Number.isInteger(d) || d < 1 || d > 7) {
+        throw new Error('day must be an integer between 1 and 7');
+      }
+
+      let tasks = [];
+      let tips = "";
+
+      switch (d) {
+        case 1:
+          tasks = ['Hammer', 'Skill', 'Tech'];
+          tips = "Always do tech but check if you need to save hammers and skills. Don't forget to load eggs for tomorrow.";
+          break;
+        case 2:
+          tasks = ['Forge', 'Keys', 'Eggs', 'Pet'];
+          tips = "Best time to forge, claim keys rewards and hatch eggs all day.";
+          break;
+        case 3:
+          tasks = ['Hammer', 'Skill', 'Mount'];
+          tips = "Check again if hammers, skills and mounts need to be saved or not. Don't forget to load eggs and tech for tomorrow.";
+          break;
+        case 4:
+          tasks = ['Forge', 'Tech', 'Eggs', 'Pet'];
+          tips = "Time to forge, tech and hatch eggs all day.";
+          break;
+        case 5:
+          tasks = ['Hammer', 'Keys', 'Mount'];
+          tips = "Claim all your key rewards. Consider using hammers and mounts until next tier rewards.";
+          break;
+        case 6:
+          tasks = ['Fight Day'];
+          tips = "FIGHT!!";
+          break;
+        case 7:
+          tasks = ['Claim Rewards'];
+          tips = "Collect rewards and load techs for next war Day 1.";
+          break;
+        default:
+          tasks = ['Unknown'];
+          tips = "";
+      }
+
+      const header = `Day ${d}: ${tasks.join(', ')}`;
+      const body = `Tips: ${tips}`;
+      const outputText = `${header}\n${body}`;
+
+      const el = $('schedule');
+      if (el) el.textContent = outputText;
+
+      return { day: d, tasks, tips, text: outputText };
+    }
+
+    // Toggle display of the full weekly schedule
+    function schedule() {
+      const placeholder = 'Clan war schedule will appear here.';
+      const current = ($('schedule') && $('schedule').textContent) ? $('schedule').textContent.trim() : '';
+      let scheduleText = '';
+
+      if (current === placeholder || current === '' || current.toLowerCase().includes('schedule')) {
+        scheduleText = 'Clan War Schedule\n=================\n';
+        scheduleText += CLAN_SCHEDULE.join('\n') + '\n\n';
+        scheduleText += "Note: Follow your clan's timings and adjust as necessary.";
+      } else {
+        scheduleText = placeholder;
+      }
+
+      if ($('schedule')) $('schedule').textContent = scheduleText;
+    }
+
+    // Time check: show current UTC time, cycle day, today's schedule and tip, and time until next UTC day
+    function timecheck() {
+      const now = new Date();
+
+      const year = now.getUTCFullYear();
+      const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+      const dayStr = String(now.getUTCDate()).padStart(2, '0');
+      const hours = String(now.getUTCHours()).padStart(2, '0');
+      const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+      const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+      const timestamp = `${year}-${month}-${dayStr} ${hours}:${minutes}:${seconds} UTC`;
+
+      // Compute cycle day based on days since epoch (UTC)
+      const msPerDay = 24 * 60 * 60 * 1000;
+      // use UTC now for daysSinceEpoch to avoid timezone edge-cases
+      const daysSinceEpoch = Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) / msPerDay);
+      const cycleOffsetDays = 0; // adjust this if your clan cycle starts on a specific epoch day
+      const cycleIndex = ((daysSinceEpoch + cycleOffsetDays) % 7 + 7) % 7; // 0..6
+      const cycleDayNumber = cycleIndex + 1; // 1..7
+
+      // Get today's schedule and tip
+      const scheduleText = CLAN_SCHEDULE[cycleIndex];
+      const info = switchClanDay(cycleDayNumber); // this also updates schedule div with day details
+
+      // Time until next UTC day
+      const nextMidnightUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
+      let msUntilNext = nextMidnightUtc - now.getTime();
+      if (msUntilNext < 0) msUntilNext = 0;
+      const secUntilNext = Math.floor(msUntilNext / 1000);
+      const hh = Math.floor(secUntilNext / 3600);
+      const mm = Math.floor((secUntilNext % 3600) / 60);
+      const ss = secUntilNext % 60;
+      const timeUntilNext = `${hh}h ${mm}m ${ss}s`;
+
+      let out = '';
+      out += `Current UTC time: ${timestamp}\n`;
+      out += `Clan War cycle day: Day ${cycleDayNumber}\n`;
+      out += `Today's schedule: ${scheduleText}\n`;
+      out += `Tip of the day: ${info.tips}\n`;
+      out += `Time until next UTC day (00:00 UTC): ${timeUntilNext}\n`;
+      out += '\n(UTC+0 is used for this check. If you need a different cycle start date, set cycleOffsetDays in the script.)\n';
+
+      if ($('result')) $('result').textContent = out;
+    }
+  </script>
+</body>
+</html>

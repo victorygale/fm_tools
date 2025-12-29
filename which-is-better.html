@@ -6,15 +6,15 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     :root{
-      --accent: #2563eb;
-      --muted: #1b3240;
-      --bg: #0f372a;
-      --panel: #178950;
-      --text: #ffffff;
-      --good-bg: #e7f2ff;
-      --bad-bg: #fff0f0;
+      --bg: #132;
+      --panel: #143;
+      --accent: #5ed;
+      --text: #ef2;
+      --muted: #adb;
+      --good-bg: #eff;
+      --bad-bg: #fee;
     }
-    body { font-family: Arial, sans-serif; padding: 20px; background: #043414; color: var(--text); }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #132; color: var(--text); }
     h2 { margin-top: 10px; }
     label { display: block; margin: 6px 0 2px; }
     input[type="number"], input[type="file"] { width: 120px; margin-bottom: 8px; }
@@ -637,6 +637,7 @@
     function changelog() {
       let changelogText = '';
 	if ($('changelogs').textContent === 'Changelogs will appear here.') {
+          changelogText += `Updated colours and layout and added clan war tool.\n`;
           changelogText += `Updated speed calculations and added disclaimer.\n`;
           changelogText += `Changed the colours.\n`;
           changelogText += `Updated attack speed calculation and added table.\n`;
@@ -662,12 +663,12 @@
           attackspeedText += `     <50.0%     ||   1.3\n`;
           attackspeedText += `     <66.7%     ||   1.2\n`;
           attackspeedText += `     <87.5%     ||   1.1\n`;
-          attackspeedText += `     <114%     ||   1.0\n`;
-          attackspeedText += `     <150%     ||   0.9\n`;
-          attackspeedText += `     <200%     ||   0.8\n`;
-          attackspeedText += `     <275%     ||   0.7\n`;
-          attackspeedText += `     <400%     ||   0.6\n`;
-          attackspeedText += `     >400%     ||   0.5\n`;
+          attackspeedText += `     <114%      ||   1.0\n`;
+          attackspeedText += `     <150%      ||   0.9\n`;
+          attackspeedText += `     <200%      ||   0.8\n`;
+          attackspeedText += `     <275%      ||   0.7\n`;
+          attackspeedText += `     <400%      ||   0.6\n`;
+          attackspeedText += `     >400%      ||   0.5\n`;
           attackspeedText += `Please note different weapons have different offsets and rounding so the example can only be used as a rough guide.\n`;
         } else {
           attackspeedText = 'Attack speed summary will appear here.';
