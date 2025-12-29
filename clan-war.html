@@ -174,7 +174,7 @@
       const msPerDay = 24 * 60 * 60 * 1000;
       // use UTC now for daysSinceEpoch to avoid timezone edge-cases
       const daysSinceEpoch = Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) / msPerDay);
-      const cycleOffsetDays = 0; // adjust this if your clan cycle starts on a specific epoch day
+      const cycleOffsetDays = 2; // adjust this if your clan cycle starts on a specific epoch day
       const cycleIndex = ((daysSinceEpoch + cycleOffsetDays) % 7 + 7) % 7; // 0..6
       const cycleDayNumber = cycleIndex + 1; // 1..7
 
