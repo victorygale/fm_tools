@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Clan Forge Tool</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg: #132;
+      --panel: #143;
+      --accent: #5ed;
+      --text: #ef2;
+      --muted: #adb;
+    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #132; color: var(--text); }
+    h2 { margin-top: 10px; }
+    label { display: block; margin: 6px 0 2px; }
+    input[type="number"] { width: 120px; margin-bottom: 8px; }
+    button { margin-top: 12px; padding: 8px 14px; }
+    #result { margin-top: 18px; font-weight: 600; white-space: pre-wrap; background:#222; padding:12px; border-radius:8px; border:1px solid #363e18; }
+    #time_info { margin-top: 12px; white-space: pre-wrap; background:#1a1a1a; padding:10px; border-radius:6px; border:1px solid #2f3b3b; }
+    #day_info { margin-top: 12px; white-space: pre-wrap; background:#1a1a1a; padding:10px; border-radius:6px; border:1px solid #2f3b3b; }
+    .stats { margin-top: 8px; font-style: italic; color:var(--muted) }
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 0 auto 12px;
+      padding: 8px 0;
+    }
+    .card {
+      display: inline-block;
+      text-decoration: none; /* remove underline */
+      color: inherit;        /* keep text color */
+      background: var(--panel);
+      border: 1px solid #dfe6f6;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      font-weight: 600;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .card:hover {
+      background: var(--accent);
+      color: #081326;
+      transform: translateY(-4px);
+    }
+    .small-note { font-size:0.9rem; color:var(--muted); margin-top:8px; }
+    .grid-row { display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+    .column { min-width:200px; }
+    .simple-table th, .simple-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f0f6ff;
+      color: var(--text);
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>⚔️🛠️ Clan Forging - by Kayzee</h1>
+  <h2 style="font-weight:normal">Instructions</h2>
+  <h3>1. Input next forge level</h3>
+  <h3>2. Input Forge discount and forge speed boosts (enter as percent values, e.g. 12 for 12%)</h3>
+
+  <div class="grid-row">
+    <div class="column">
+      <table id="results_table" class="simple-table" aria-label="Attack Speed Steps">
+        <thead>
+          <tr><th>Forge Level</th><th>  Cost</th><th>  Time</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2</td><td>400</td><td>5m</td></tr>
+          <tr><td>3</td><td>700</td><td>15m</td></tr>
+          <tr><td>4</td><td>1500</td><td>30m</td></tr>
+          <tr><td>5</td><td>3500</td><td>1h</td></tr>
+          <tr><td>6</td><td>10000</td><td>2h</td></tr>
+          <tr><td>7</td><td>25000</td><td>7h 33m</td></tr>
+          <tr><td>8</td><td>50000</td><td>13h 6m</td></tr>
+          <tr><td>9</td><td>100000</td><td>18h 39m</td></tr>
+          <tr><td>10</td><td>150000</td><td>1d 13m</td></tr>
+          <tr><td>11</td><td>250000</td><td>1d 11h</td></tr>
+          <tr><td>12</td><td>336000</td><td>2d 1h</td></tr>
+          <tr><td>13</td><td>452000</td><td>2d 17h</td></tr>
+          <tr><td>14</td><td>612000</td><td>3d 13h</td></tr>
+          <tr><td>15</td><td>830000</td><td>4d 11h</td></tr>
+          <tr><td>16</td><td>1120000</td><td>5d 9h</td></tr>
+          <tr><td>17</td><td>1512000</td><td>6d 7h</td></tr>
+          <tr><td>18</td><td>2037000</td><td>7d 6h</td></tr>
+          <tr><td>19</td><td>2752000</td><td>8d 4h</td></tr>
+          <tr><td>20</td><td>3717000</td><td>9d 2h</td></tr>
+          <tr><td>21</td><td>5020000</td><td>10d 53m</td></tr>
+          <tr><td>22</td><td>6780000</td><td>10d 23h</td></tr>
+          <tr><td>23</td><td>9160000</td><td>11d 21h</td></tr>
+          <tr><td>24</td><td>12300000</td><td>12d 19h</td></tr>
+          <tr><td>25</td><td>16600000</td><td>13d 17h</td></tr>
+          <tr><td>26</td><td>20000000</td><td>14d 15h</td></tr>
+          <tr><td>27</td><td>24000000</td><td>15d 14h</td></tr>
+          <tr><td>28</td><td>28800000</td><td>16d 12h</td></tr>
+          <tr><td>29</td><td>34600000</td><td>17d 10h</td></tr>
+          <tr><td>30</td><td>41500000</td><td>18d 8h</td></tr>
+          <tr><td>31</td><td>49800000</td><td>19d 7h</td></tr>
+          <tr><td>32</td><td>59800000</td><td>20d 5h</td></tr>
+          <tr><td>33</td><td>71700000</td><td>21d 3h</td></tr>
+          <tr><td>34</td><td>86100000</td><td>22d 1h</td></tr>
+          <tr><td>35</td><td>103000000</td><td>23d</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="column" id="inputs">
+      <h2 style="margin:6px 0">Inputs</h2>
+      <div id="input">
+        <label><input type="number" id="e1_level" value="0" step="1" min="0"/> Forge Level</label>
+        <label><input type="number" id="e1_speed" value="0" step="any"/> Forge Speed (%)</label>
+        <label><input type="number" id="e1_discount" value="0" step="any"/> Forge Discount (%)</label>
+      </div>
+      <div class="stats" id="input_stats"></div>
+      <div style="margin-top:12px;">
+        <div id="day_info">Day results will be here.</div>
+        <button onclick="calculate()">Calculate Forge estimates</button>
+        <div id="result">Results will appear here.</div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button onclick="showTimeInfo()">Show Time & Clan Cycle</button>
+        <div id="time_info">Time and cycle info will appear here.</div>
+      </div>
+
+      <div class="nav" style="margin-top:20px;">
+        <a href="https://discord.gg/fmaster" class="card" target="_blank" rel="noopener noreferrer">
+          <div class="icon">🔨</div>
+          <div>Discord Link</div>
+        </a>
+        <a href="https://octavian-mirica.github.io/fm-tools/" class="card" target="_blank" rel="noopener noreferrer">
+          <div class="icon">🐈‍⬛</div>
+          <div>Fm Tools by Fitz</div>
+        </a>
+        <a href="https://victorygale.github.io/fm_tools/" class="card" target="_blank" rel="noopener noreferrer">
+          <div class="icon">𖨆</div>
+          <div>FM Tools Kayzee Edit</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    function parseInputValue(id) {
+      const el = $(id);
+      if (!el) return 0;
+      const v = parseFloat(el.value);
+      return Number.isFinite(v) ? v : 0;
+    }
+
+    function getStats(prefix) {
+      const level = parseInputValue(prefix + '_level');
+      const speed = parseInputValue(prefix + '_speed');
+      const discount = parseInputValue(prefix + '_discount');
+      return { level, speed, discount };
+    }
+
+    function formatNumber(num) {
+      const n = Number(num);
+      if (!isFinite(n)) return '0.00';
+      const abs = Math.abs(n);
+      if (abs >= 1_000_000) return (n/1_000_000).toFixed(2) + 'M';
+      if (abs >= 1_000) return (n/1_000).toFixed(2) + 'K';
+      return n.toFixed(2);
+    }
+
+    (function () {
+      const multipliers = {
+        d: 86400, day: 86400, days: 86400,
+        h: 3600, hr: 3600, hrs: 3600, hour: 3600, hours: 3600,
+        m: 60, min: 60, mins: 60, minute: 60, minutes: 60,
+        s: 1, sec: 1, secs: 1, second: 1, seconds: 1
+      };
+      const re = /([+-]?\d+(?:\.\d+)?)\s*([a-zA-Z]+)\b/g;
+
+      function parseDurationToSeconds(text) {
+        if (typeof text !== 'string') throw new TypeError('text must be a string');
+        text = text.trim();
+        if (!text) throw new Error('empty string');
+
+        let total = 0;
+        let found = false;
+        re.lastIndex = 0;
+        let m;
+        while ((m = re.exec(text)) !== null) {
+          found = true;
+          let num = parseFloat(m[1]);
+          let unit = m[2].toLowerCase();
+
+          if (!(unit in multipliers)) {
+            let key = unit;
+            if (!(key in multipliers) && key.endsWith('s')) key = key.slice(0, -1);
+            if (!(key in multipliers)) key = unit[0];
+            if (!(key in multipliers)) {
+              throw new Error('unrecognized time unit: ' + unit);
+            }
+            unit = key;
+          }
+          total += num * multipliers[unit];
+        }
+
+        if (!found) {
+          const v = parseFloat(text);
+          if (Number.isNaN(v)) throw new Error('could not parse duration: ' + text);
+          total = v;
+        }
+
+        return Number.isInteger(total) ? Math.round(total) : total;
+      }
+
+      function secondsToDHMS(totalSeconds, { fractional = true, precision = 6 } = {}) {
+        if (typeof totalSeconds !== 'number' || Number.isNaN(totalSeconds)) {
+          throw new TypeError('totalSeconds must be a number');
+        }
+        const sign = totalSeconds < 0 ? -1 : 1;
+        let secs = Math.abs(totalSeconds);
+
+        const days = Math.floor(secs / 86400);
+        secs -= days * 86400;
+        const hours = Math.floor(secs / 3600);
+        secs -= hours * 3600;
+        const minutes = Math.floor(secs / 60);
+        secs -= minutes * 60;
+        let seconds = fractional ? secs : Math.round(secs);
+
+        if (fractional) {
+          const factor = Math.pow(10, precision);
+          seconds = Math.round(seconds * factor) / factor;
+        } else {
+          seconds = Math.round(seconds);
+        }
+
+        if (!fractional && seconds >= 60) {
+          seconds -= 60;
+          let m = minutes + 1;
+          let h = hours;
+          let d = days;
+          if (m >= 60) { m -= 60; h += 1; }
+          if (h >= 24) { h -= 24; d += 1; }
+          return {
+            days: d * sign,
+            hours: h * sign,
+            minutes: m * sign,
+            seconds: seconds * sign
+          };
+        }
+
+        return { days: days * sign, hours: hours * sign, minutes: minutes * sign, seconds: seconds * sign };
+      }
+
+      function formatDHMS(obj) {
+        const sign = obj.days < 0 || obj.hours < 0 || obj.minutes < 0 || obj.seconds < 0 ? '-' : '';
+        const d = Math.abs(obj.days);
+        const h = Math.abs(obj.hours);
+        const m = Math.abs(obj.minutes);
+        const s = Math.abs(obj.seconds);
+        const sStr = Number.isInteger(s) ? String(s) : String(s);
+        return `${sign}${d}d ${h}h ${m}m ${sStr}s`;
+      }
+
+      window.parseDurationToSeconds = parseDurationToSeconds;
+      window.secondsToDHMS = secondsToDHMS;
+      window.formatDHMS = formatDHMS;
+
+      function buildForgeLevels() {
+        const rows = Array.from(document.querySelectorAll('#results_table tbody tr'));
+        const arr = rows.map(r => {
+          const cells = r.querySelectorAll('td');
+          const lvl = parseInt(cells[0].textContent.trim(), 10);
+          const costText = cells[1].textContent.trim().replace(/,/g, '').replace(/\s+/g, '');
+          const cost = Number(costText) || 0;
+          const timeText = cells[2].textContent.trim();
+          return { level: lvl, cost, timeText };
+        });
+        return arr;
+      }
+
+      window.forgeLevels = buildForgeLevels();
+
+      // Live parsed input display wiring
+      (function attachInputListeners() {
+        const ids = ['e1_level','e1_speed','e1_discount'];
+        ids.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('input', () => {
+            const parsed = getStats('e1');
+            const levelText = Number.isFinite(parsed.level) ? parsed.level : 0;
+            const speedPct = Number.isFinite(parsed.speed) ? parsed.speed : 0;
+            const discountPct = Number.isFinite(parsed.discount) ? Math.abs(parsed.discount) : 0;
+            const statsEl = document.getElementById('input_stats');
+            if (statsEl) {
+              statsEl.textContent = `Parsed inputs — Level: ${levelText}, Speed: ${speedPct}% , Discount (abs): ${discountPct}%`;
+            }
+          });
+        });
+      })();
+
+    })();
+
+    // Clan schedule used only for cycle day description
+    const CLAN_SCHEDULE = [
+      'Day 1: Hammer, Skill, Tech',
+      'Day 2: Forge, Keys, Eggs, Pet',
+      'Day 3: Hammer, Skill, Mount',
+      'Day 4: Forge, Tech, Eggs, Pet',
+      'Day 5: Hammer, Keys, Skill, Mount',
+      'Day 6: Fight Day',
+      'Day 7: Claim Rewards'
+    ];
+
+    // Show current UTC/local time and (if a valid level is selected) predicted end-of-forge times
+    function showTimeInfo() {
+      const now = new Date();
+
+      // UTC timestamp (current)
+      const year = now.getUTCFullYear();
+      const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+      const dayStr = String(now.getUTCDate()).padStart(2, '0');
+      const hours = String(now.getUTCHours()).padStart(2, '0');
+      const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+      const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+      const utcTimestamp = `${year}-${month}-${dayStr} ${hours}:${minutes}:${seconds} UTC`;
+
+      // Local device timestamp and timezone info (current)
+      const localTimestamp = now.toLocaleString();
+      const tzName = (Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'Local';
+      const offsetMinutes = now.getTimezoneOffset();
+      const offsetTotal = -offsetMinutes;
+      const offsetSign = offsetTotal >= 0 ? '+' : '-';
+      const absOffset = Math.abs(offsetTotal);
+      const offsetHours = Math.floor(absOffset / 60).toString().padStart(2, '0');
+      const offsetMins = (absOffset % 60).toString().padStart(2, '0');
+      const tzOffsetStr = `UTC${offsetSign}${offsetHours}:${offsetMins}`;
+
+      // basic cycle day (current)
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const daysSinceEpoch = Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) / msPerDay);
+      const cycleOffsetDays = 2; // adjust if your clan cycle starts on a specific epoch day
+      const cycleIndexNow = ((daysSinceEpoch + cycleOffsetDays) % 7 + 7) % 7; // 0..6
+      const cycleDayNow = cycleIndexNow + 1;
+      const scheduleNow = CLAN_SCHEDULE[cycleIndexNow] || 'Unknown';
+
+      // Start building output
+      let out = '';
+      let out2 = ''; 
+      out += `Current UTC time: ${utcTimestamp}\n`;
+      out += `Local device time: ${localTimestamp} (${tzName}, ${tzOffsetStr})\n\n`;
+      out += `Current Clan War cycle day: Day ${cycleDayNow}\n`;
+      out += `Today's schedule: ${scheduleNow}\n\n`;
+
+      // Try to compute end-of-forge times if level input is valid
+      const parsed = getStats('e1');
+      const level = Math.round(parsed.level);
+      if (!Number.isFinite(level) || level <= 0) {
+        out += 'No valid forge level selected — enter a Forge Level to see predicted completion times.\n';
+      } else {
+        const lvlEntry = (window.forgeLevels || []).find(x => x.level === level);
+        if (!lvlEntry) {
+          out += `No table data for forge level ${level} — cannot predict end time.\n`;
+        } else {
+          const baseTimeText = String(lvlEntry.timeText || '').trim();
+          let baseSeconds;
+          try {
+            baseSeconds = window.parseDurationToSeconds(baseTimeText);
+          } catch (err) {
+            baseSeconds = null;
+            out += `Could not parse base time for level ${level}: "${baseTimeText}" (${err.message || err})\n`;
+          }
+
+          if (baseSeconds != null) {
+            // speed input as percent (user enters e.g. 12 -> 12%)
+            const speedInputPct = Number(parsed.speed) || 0;
+            const speedFraction = speedInputPct / 100;
+            const speedFactor = 1 + speedFraction;
+            if (speedFactor <= 0) {
+              out += `Invalid speed percent resulting in non-positive speed factor (${speedFactor}).\n`;
+            } else {
+              const spedUpSeconds = baseSeconds / speedFactor;
+              const completionDate = new Date(now.getTime() + Math.round(spedUpSeconds * 1000));
+              // Completion times (UTC and local)
+              const cy = completionDate.getUTCFullYear();
+              const cmon = String(completionDate.getUTCMonth() + 1).padStart(2, '0');
+              const cday = String(completionDate.getUTCDate()).padStart(2, '0');
+              const ch = String(completionDate.getUTCHours()).padStart(2, '0');
+              const cmin = String(completionDate.getUTCMinutes()).padStart(2, '0');
+              const csec = String(completionDate.getUTCSeconds()).padStart(2, '0');
+              const completionUtc = `${cy}-${cmon}-${cday} ${ch}:${cmin}:${csec} UTC`;
+
+              const completionLocal = completionDate.toLocaleString();
+
+              // cycle day at completion (based on UTC date)
+              const daysSinceEpochAtCompletion = Math.floor(Date.UTC(completionDate.getUTCFullYear(), completionDate.getUTCMonth(), completionDate.getUTCDate()) / msPerDay);
+              const cycleIndexAtCompletion = ((daysSinceEpochAtCompletion + cycleOffsetDays) % 7 + 7) % 7;
+              const cycleDayAtCompletion = cycleIndexAtCompletion + 1;
+              const scheduleAtCompletion = CLAN_SCHEDULE[cycleIndexAtCompletion] || 'Unknown';
+
+              // time until completion (from now)
+              const secUntilCompletion = Math.max(0, Math.floor(spedUpSeconds));
+              const hh = Math.floor(secUntilCompletion / 3600);
+              const mm = Math.floor((secUntilCompletion % 3600) / 60);
+              const ss = secUntilCompletion % 60;
+              const timeUntilCompletion = `${hh}h ${mm}m ${ss}s`;
+
+              out += `Forge Level: ${level}\n`;
+              out += `Base Time (table): ${baseTimeText} → ${baseSeconds} seconds\n`;
+              out += `Speed (entered): ${speedInputPct}% → factor ${speedFactor.toFixed(4)}\n`;
+              out += `Predicted time until completion: ${timeUntilCompletion}\n\n`;
+              out2 += `Forge will finish at: ${timeUntilCompletion}\n`;
+              out += `Completion (UTC): ${completionUtc}\n`;
+              out += `Completion (local): ${completionLocal}\n\n`;
+              out2 += `Local finish time: ${completionLocal}\n`;
+              out += `Clan War cycle day at completion: Day ${cycleDayAtCompletion}\n`;
+              out2 += `Forge will finish on Day ${cycleDayAtCompletion}\n`;
+              out += `Schedule at completion: ${scheduleAtCompletion}\n`;
+              out2 += `${scheduleAtCompletion}\n`;
+            }
+          }
+        }
+      }
+
+      out += '\n(Note: cycle day calculation uses UTC date. Adjust cycleOffsetDays in script if your clan uses a different epoch start.)\n';
+
+      const el = $('time_info');
+      if (el) el.textContent = out;
+      const el2 = $('day_info');
+      if (el2) el2.textContent = out2;
+    }
+
+    function calculate() {
+      const parsed = getStats('e1');
+      const level = Math.round(parsed.level);
+      if (!Number.isFinite(level) || level <= 0) {
+        $('result').textContent = 'Please enter a valid Forge Level (e.g. 2, 3, ...).';
+        return;
+      }
+
+      const lvlEntry = (window.forgeLevels || []).find(x => x.level === level);
+      if (!lvlEntry) {
+        $('result').textContent = `No data for forge level ${level}.`;
+        return;
+      }
+
+      const baseCost = Number(lvlEntry.cost) || 0;
+      const baseTimeText = String(lvlEntry.timeText || '').trim();
+
+      // Treat inputs as percent values (user enters e.g. 12 meaning 12%)
+      const speedInputPct = Number(parsed.speed) || 0;           // e.g. 12 -> 12%
+      const discountInputPct = Math.abs(Number(parsed.discount) || 0); // take absolute value per request
+
+      // Convert to fractional values
+      const speedFraction = speedInputPct / 100;     // e.g. 0.12
+      let discountFraction = discountInputPct / 100; // e.g. 0.12
+
+      // Clamp discountFraction to [0, 1] to avoid negative or >100% discounts causing weird values
+      discountFraction = Math.max(0, Math.min(1, discountFraction));
+
+      // Calculate discounted cost (cost cannot go negative)
+      const discountedCost = Math.max(0, Math.round(baseCost * (1 - discountFraction)));
+
+      // Speed: interpret as percent increase in speed -> time divided by (1 + speedFraction)
+      const speedFactor = 1 + speedFraction;
+      if (speedFactor <= 0) {
+        $('result').textContent = 'Invalid speed percent resulting in non-positive speed factor.';
+        return;
+      }
+
+      let baseSeconds;
+      try {
+        baseSeconds = window.parseDurationToSeconds(baseTimeText);
+      } catch (err) {
+        $('result').textContent = `Could not parse base time string "${baseTimeText}": ${err.message || err}`;
+        return;
+      }
+
+      const spedUpSeconds = baseSeconds / speedFactor;
+      const spedUpRounded = Math.max(0, Math.round(spedUpSeconds));
+
+      const baseTimeFormatted = window.formatDHMS(window.secondsToDHMS(baseSeconds, { fractional: false }));
+      const spedTimeFormatted = window.formatDHMS(window.secondsToDHMS(spedUpRounded, { fractional: false }));
+
+      // Update input stats
+      const statsEl = $('input_stats');
+      if (statsEl) {
+        statsEl.textContent = `Inputs — Level: ${level}, Speed: ${speedInputPct}%, Discount (abs): ${discountInputPct}%`;
+      }
+
+      // Build result text
+      let resultText = '';
+      resultText += `Forge Level: ${level}\n\n`;
+      resultText += `Base Cost: ${formatNumber(baseCost)}\n`;
+      resultText += `Discount (entered, abs): ${discountInputPct}% → fraction: ${discountFraction}\n`;
+      resultText += `Discounted Cost: ${formatNumber(discountedCost)}\n\n`;
+
+      resultText += `Base Time (table): ${baseTimeText}\n`;
+      resultText += `Base Time (parsed): ${baseTimeFormatted} → ${baseSeconds} seconds\n`;
+      resultText += `Speed (entered): ${speedInputPct}% → factor: ${speedFactor.toFixed(4)}\n`;
+      resultText += `Sped-up Time: ${spedTimeFormatted} → ${spedUpRounded} seconds\n\n`;
+
+      resultText += `Notes:\n`;
+      resultText += `- Discount is taken as the absolute value of the input and applied as a percent (e.g. 12 -> 12%).\n`;
+      resultText += `- Speed is taken as a percent and reduces time by dividing by (1 + speedFraction) (e.g. 20% -> divide time by 1.20).\n`;
+
+      $('result').textContent = resultText;
+
+      // Optionally update time_info as well so user sees completion time immediately
+      // (keeps UI in sync)
+      showTimeInfo();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Clan Tech Tool</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --bg: #132;
+      --panel: #143;
+      --accent: #5ed;
+      --text: #ef2;
+      --muted: #adb;
+    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #132; color: var(--text); }
+    h2 { margin-top: 10px; }
+    label { display: block; margin: 6px 0 2px; }
+    input[type="number"] { width: 120px; margin-bottom: 8px; }
+    button { margin-top: 12px; padding: 8px 14px; }
+    #result { margin-top: 18px; font-weight: 600; white-space: pre-wrap; background:#222; padding:12px; border-radius:8px; border:1px solid #363e18; }
+    #time_info { margin-top: 12px; white-space: pre-wrap; background:#1a1a1a; padding:10px; border-radius:6px; border:1px solid #2f3b3b; }
+    #day_info { margin-top: 8px; white-space: pre-wrap; background:#1a1a1a; padding:8px; border-radius:6px; border:1px solid #2f3b3b; }
+    .stats { margin-top: 8px; font-style: italic; color:var(--muted) }
+    .nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 0 auto 12px;
+      padding: 8px 0;
+    }
+    .card {
+      display: inline-block;
+      text-decoration: none; /* remove underline */
+      color: inherit;        /* keep text color */
+      background: var(--panel);
+      border: 1px solid #dfe6f6;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      font-weight: 600;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .card:hover {
+      background: var(--accent);
+      color: #081326;
+      transform: translateY(-4px);
+    }
+    .small-note { font-size:0.9rem; color:var(--muted); margin-top:8px; }
+    .grid-row { display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; }
+    .column { min-width:200px; }
+    .simple-table th, .simple-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f0f6ff;
+      color: var(--text);
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>⚔️🌳 Clan Research - by Kayzee</h1>
+  <h2 style="font-weight:normal">Instructions</h2>
+  <h3>1. Input tech node tier and level out of 5</h3>
+  <h3>2. Input Tech discount and research speed boosts (enter as percent values, e.g. 12 for 12%)</h3>
+
+  <div class="grid-row">
+    <div class="column">
+      <table id="results_table" class="simple-table" aria-label="Attack Speed Steps">
+        <thead>
+          <tr><th>Tier and level</th><th>  Cost</th><th>  Time</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Tier 1, 1/5</td><td>40</td><td>5m</td></tr>
+          <tr><td>Tier 1, 2/5</td><td>56</td><td>10m</td></tr>
+          <tr><td>Tier 1, 3/5</td><td>78</td><td>20m</td></tr>
+          <tr><td>Tier 1, 4/5</td><td>110</td><td>40m</td></tr>
+          <tr><td>Tier 1, 5/5</td><td>154</td><td>1h 20m</td></tr>
+          <tr><td>Tier 2, 1/5</td><td>215</td><td>2h 40m</td></tr>
+          <tr><td>Tier 2, 2/5</td><td>301</td><td>5h 20m</td></tr>
+          <tr><td>Tier 2, 3/5</td><td>422</td><td>10h 40m</td></tr>
+          <tr><td>Tier 2, 4/5</td><td>590</td><td>21h 20m</td></tr>
+          <tr><td>Tier 2, 5/5</td><td>826</td><td>23h 53m</td></tr>
+          <tr><td>Tier 3, 1/5</td><td>1150</td><td>1d 2h</td></tr>
+          <tr><td>Tier 3, 2/5</td><td>1310</td><td>1d 5h</td></tr>
+          <tr><td>Tier 3, 3/5</td><td>1500</td><td>1d 9h</td></tr>
+          <tr><td>Tier 3, 4/5</td><td>1710</td><td>1d 13h</td></tr>
+          <tr><td>Tier 3, 5/5</td><td>1950</td><td>1d 18h</td></tr>
+          <tr><td>Tier 4, 1/5</td><td>2220</td><td>1d 23h</td></tr>
+          <tr><td>Tier 4, 2/5</td><td>2540</td><td>2d 4h</td></tr>
+          <tr><td>Tier 4, 3/5</td><td>2890</td><td>2d 11h</td></tr>
+          <tr><td>Tier 4, 4/5</td><td>3300</td><td>2d 18h</td></tr>
+          <tr><td>Tier 4, 5/5</td><td>3760</td><td>3d 2h</td></tr>
+          <tr><td>Tier 5, 1/5</td><td>4280</td><td>3d 11h</td></tr>
+          <tr><td>Tier 5, 2/5</td><td>4880</td><td>3d 21h</td></tr>
+          <tr><td>Tier 5, 3/5</td><td>5570</td><td>4d 8h</td></tr>
+          <tr><td>Tier 5, 4/5</td><td>6350</td><td>4d 20h</td></tr>
+          <tr><td>Tier 5, 5/5</td><td>7240</td><td>5d 10h</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="column" id="inputs">
+      <h2 style="margin:6px 0">Inputs</h2>
+      <div id="input">
+        <label><input type="number" id="e1_tier" value="1" step="1" min="1" max="5"/> Tier (1-5)</label>
+        <label><input type="number" id="e1_level" value="1" step="1" min="1" max="5"/> Level (1-5)</label>
+        <label><input type="number" id="e1_speed" value="0" step="any"/> Research Speed (%)</label>
+        <label><input type="number" id="e1_discount" value="0" step="any"/> Research Discount (%)</label>
+      </div>
+      <div class="stats" id="input_stats"></div>
+      <div style="margin-top:12px;">
+        <div id="day_info">Day results will be here.</div>
+        <button onclick="calculate()">Calculate Research estimates</button>
+        <div id="result">Results will appear here.</div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button onclick="showTimeInfo()">Show Time & Clan Cycle</button>
+        <div id="time_info">Time and cycle info will appear here.</div>
+      </div>
+
+      <div class="nav" style="margin-top:20px;">
+        <a href="https://discord.gg/fmaster" class="card" target="_blank" rel="noopener noreferrer">
+          <div class="icon">🔨</div>
+          <div>Discord Link</div>
+        </a>
+        <a href="https://octavian-mirica.github.io/fm-tools/" class="card" target="_blank" rel="noopener noreferrer">
+          <div class="icon">🐈‍⬛</div>
+          <div>Fm Tools by Fitz</div>
+        </a>
+        <a href="https://victorygale.github.io/fm_tools/" class="card" target="_blank" rel="noopener noreferrer">
+          <div class="icon">𖨆</div>
+          <div>FM Tools Kayzee Edit</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    function parseInputValue(id) {
+      const el = $(id);
+      if (!el) return 0;
+      const v = parseFloat(el.value);
+      return Number.isFinite(v) ? v : 0;
+    }
+
+    // return raw tier and level inputs (both integers)
+    function getStats(prefix) {
+      const tier = Math.max(0, Math.round(parseInputValue(prefix + '_tier')));
+      const level = Math.max(0, Math.round(parseInputValue(prefix + '_level')));
+      const speed = parseInputValue(prefix + '_speed');
+      const discount = parseInputValue(prefix + '_discount');
+      return { tier, level, speed, discount };
+    }
+
+    function formatNumber(num) {
+      const n = Number(num);
+      if (!isFinite(n)) return '0.00';
+      const abs = Math.abs(n);
+      if (abs >= 1_000_000) return (n/1_000_000).toFixed(2) + 'M';
+      if (abs >= 1_000) return (n/1_000).toFixed(2) + 'K';
+      return n.toFixed(2);
+    }
+
+    (function () {
+      const multipliers = {
+        d: 86400, day: 86400, days: 86400,
+        h: 3600, hr: 3600, hrs: 3600, hour: 3600, hours: 3600,
+        m: 60, min: 60, mins: 60, minute: 60, minutes: 60,
+        s: 1, sec: 1, secs: 1, second: 1, seconds: 1
+      };
+      const re = /([+-]?\d+(?:\.\d+)?)\s*([a-zA-Z]+)\b/g;
+
+      function parseDurationToSeconds(text) {
+        if (typeof text !== 'string') throw new TypeError('text must be a string');
+        text = text.trim();
+        if (!text) throw new Error('empty string');
+
+        let total = 0;
+        let found = false;
+        re.lastIndex = 0;
+        let m;
+        while ((m = re.exec(text)) !== null) {
+          found = true;
+          let num = parseFloat(m[1]);
+          let unit = m[2].toLowerCase();
+
+          if (!(unit in multipliers)) {
+            let key = unit;
+            if (!(key in multipliers) && key.endsWith('s')) key = key.slice(0, -1);
+            if (!(key in multipliers)) key = unit[0];
+            if (!(key in multipliers)) {
+              throw new Error('unrecognized time unit: ' + unit);
+            }
+            unit = key;
+          }
+          total += num * multipliers[unit];
+        }
+
+        if (!found) {
+          const v = parseFloat(text);
+          if (Number.isNaN(v)) throw new Error('could not parse duration: ' + text);
+          total = v;
+        }
+
+        return Number.isInteger(total) ? Math.round(total) : total;
+      }
+
+      function secondsToDHMS(totalSeconds, { fractional = true, precision = 6 } = {}) {
+        if (typeof totalSeconds !== 'number' || Number.isNaN(totalSeconds)) {
+          throw new TypeError('totalSeconds must be a number');
+        }
+        const sign = totalSeconds < 0 ? -1 : 1;
+        let secs = Math.abs(totalSeconds);
+
+        const days = Math.floor(secs / 86400);
+        secs -= days * 86400;
+        const hours = Math.floor(secs / 3600);
+        secs -= hours * 3600;
+        const minutes = Math.floor(secs / 60);
+        secs -= minutes * 60;
+        let seconds = fractional ? secs : Math.round(secs);
+
+        if (fractional) {
+          const factor = Math.pow(10, precision);
+          seconds = Math.round(seconds * factor) / factor;
+        } else {
+          seconds = Math.round(seconds);
+        }
+
+        if (!fractional && seconds >= 60) {
+          seconds -= 60;
+          let m = minutes + 1;
+          let h = hours;
+          let d = days;
+          if (m >= 60) { m -= 60; h += 1; }
+          if (h >= 24) { h -= 24; d += 1; }
+          return {
+            days: d * sign,
+            hours: h * sign,
+            minutes: m * sign,
+            seconds: seconds * sign
+          };
+        }
+
+        return { days: days * sign, hours: hours * sign, minutes: minutes * sign, seconds: seconds * sign };
+      }
+
+      function formatDHMS(obj) {
+        const sign = obj.days < 0 || obj.hours < 0 || obj.minutes < 0 || obj.seconds < 0 ? '-' : '';
+        const d = Math.abs(obj.days);
+        const h = Math.abs(obj.hours);
+        const m = Math.abs(obj.minutes);
+        const s = Math.abs(obj.seconds);
+        const sStr = Number.isInteger(s) ? String(s) : String(s);
+        return `${sign}${d}d ${h}h ${m}m ${sStr}s`;
+      }
+
+      window.parseDurationToSeconds = parseDurationToSeconds;
+      window.secondsToDHMS = secondsToDHMS;
+      window.formatDHMS = formatDHMS;
+
+      function buildTechLevels() {
+        const rows = Array.from(document.querySelectorAll('#results_table tbody tr'));
+        const arr = rows.map(r => {
+          const cells = r.querySelectorAll('td');
+          const label = cells[0].textContent.trim();
+          // try to extract Tier and level using a regex like "Tier 2, 3/5"
+          let tier = null;
+          let levelInTier = null;
+          const m = /Tier\s*([0-9]+)\s*,\s*([0-9]+)\/[0-9]+/i.exec(label);
+          if (m) {
+            tier = parseInt(m[1], 10);
+            levelInTier = parseInt(m[2], 10);
+          } else {
+            // fallback: try any two numbers in the label
+            const nums = label.match(/\d+/g) || [];
+            if (nums.length >= 2) {
+              tier = parseInt(nums[0], 10);
+              levelInTier = parseInt(nums[1], 10);
+            }
+          }
+
+          const costText = cells[1].textContent.trim().replace(/,/g, '').replace(/\s+/g, '');
+          const cost = Number(costText) || 0;
+          const timeText = cells[2].textContent.trim();
+
+          return { tier, levelInTier, label, cost, timeText };
+        });
+        return arr;
+      }
+
+      // expose techLevels to global
+      window.techLevels = buildTechLevels();
+
+      // Live parsed input display wiring
+      (function attachInputListeners() {
+        const ids = ['e1_tier','e1_level','e1_speed','e1_discount'];
+        ids.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('input', () => {
+            const parsed = getStats('e1');
+            const tier = Number.isFinite(parsed.tier) ? parsed.tier : 0;
+            const level = Number.isFinite(parsed.level) ? parsed.level : 0;
+            const speedPct = Number.isFinite(parsed.speed) ? parsed.speed : 0;
+            const discountPct = Number.isFinite(parsed.discount) ? Math.abs(parsed.discount) : 0;
+            const statsEl = document.getElementById('input_stats');
+            if (statsEl) {
+              statsEl.textContent = `Parsed inputs — Tier: ${tier}, Level: ${level}/5, Speed: ${speedPct}% , Discount (abs): ${discountPct}%`;
+            }
+          });
+        });
+      })();
+
+    })();
+
+    // Clan schedule used only for cycle day description
+    const CLAN_SCHEDULE = [
+      'Day 1: Hammer, Skill, Tech',
+      'Day 2: Forge, Keys, Eggs, Pet',
+      'Day 3: Hammer, Skill, Mount',
+      'Day 4: Forge, Tech, Eggs, Pet',
+      'Day 5: Hammer, Keys, Skill, Mount',
+      'Day 6: Fight Day',
+      'Day 7: Claim Rewards'
+    ];
+
+    // Show current UTC/local time and predicted end-of-research times (if valid)
+    function showTimeInfo() {
+      const now = new Date();
+
+      // UTC timestamp (current)
+      const year = now.getUTCFullYear();
+      const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+      const dayStr = String(now.getUTCDate()).padStart(2, '0');
+      const hours = String(now.getUTCHours()).padStart(2, '0');
+      const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+      const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+      const utcTimestamp = `${year}-${month}-${dayStr} ${hours}:${minutes}:${seconds} UTC`;
+
+      // Local device timestamp and timezone info (current)
+      const localTimestamp = now.toLocaleString();
+      const tzName = (Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'Local';
+      const offsetMinutes = now.getTimezoneOffset();
+      const offsetTotal = -offsetMinutes;
+      const offsetSign = offsetTotal >= 0 ? '+' : '-';
+      const absOffset = Math.abs(offsetTotal);
+      const offsetHours = Math.floor(absOffset / 60).toString().padStart(2, '0');
+      const offsetMins = (absOffset % 60).toString().padStart(2, '0');
+      const tzOffsetStr = `UTC${offsetSign}${offsetHours}:${offsetMins}`;
+
+      // basic cycle day (current)
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const daysSinceEpoch = Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) / msPerDay);
+      const cycleOffsetDays = 2; // adjust if your clan cycle starts on a specific epoch day
+      const cycleIndexNow = ((daysSinceEpoch + cycleOffsetDays) % 7 + 7) % 7; // 0..6
+      const cycleDayNow = cycleIndexNow + 1;
+      const scheduleNow = CLAN_SCHEDULE[cycleIndexNow] || 'Unknown';
+
+      // Start building output
+      let out = '';
+      let outShort = '';
+
+      out += `Current UTC time: ${utcTimestamp}\n`;
+      out += `Local device time: ${localTimestamp} (${tzName}, ${tzOffsetStr})\n\n`;
+      out += `Current Clan War cycle day: Day ${cycleDayNow}\n`;
+      out += `Today's schedule: ${scheduleNow}\n\n`;
+
+      // Try to compute end-of-research times if tier/level input is valid
+      const parsed = getStats('e1');
+      const tier = Math.round(parsed.tier);
+      const level = Math.round(parsed.level);
+
+      // If inputs are not present (older versions), fall back to using tier & level defaults
+      // but keep behavior consistent: require both tier and level to be >=1
+      if (!Number.isFinite(tier) || !Number.isFinite(level) || tier < 1 || level < 1) {
+        out += 'No valid tier/level selected — enter Tier (1-5) and Level (1-5) to see predicted completion times.\n';
+      } else {
+        const entry = (window.techLevels || []).find(e => e.tier === tier && e.levelInTier === level);
+        if (!entry) {
+          out += `No table data for Tier ${tier}, Level ${level} — cannot predict end time.\n`;
+        } else {
+          const baseTimeText = String(entry.timeText || '').trim();
+          let baseSeconds;
+          try {
+            baseSeconds = window.parseDurationToSeconds(baseTimeText);
+          } catch (err) {
+            baseSeconds = null;
+            out += `Could not parse base time: "${baseTimeText}" (${err.message || err})\n`;
+          }
+
+          if (baseSeconds != null) {
+            // speed input as percent (user enters e.g. 12 -> 12%)
+            const speedInputPct = Number(parsed.speed) || 0;
+            const speedFraction = speedInputPct / 100;
+            const speedFactor = 1 + speedFraction;
+            if (speedFactor <= 0) {
+              out += `Invalid speed percent resulting in non-positive speed factor (${speedFactor}).\n`;
+            } else {
+              const spedUpSeconds = baseSeconds / speedFactor;
+              const completionDate = new Date(now.getTime() + Math.round(spedUpSeconds * 1000));
+
+              // Completion times (UTC and local)
+              const cy = completionDate.getUTCFullYear();
+              const cmon = String(completionDate.getUTCMonth() + 1).padStart(2, '0');
+              const cday = String(completionDate.getUTCDate()).padStart(2, '0');
+              const ch = String(completionDate.getUTCHours()).padStart(2, '0');
+              const cmin = String(completionDate.getUTCMinutes()).padStart(2, '0');
+              const csec = String(completionDate.getUTCSeconds()).padStart(2, '0');
+              const completionUtc = `${cy}-${cmon}-${cday} ${ch}:${cmin}:${csec} UTC`;
+              const completionLocal = completionDate.toLocaleString();
+
+              // cycle day at completion (based on UTC date)
+              const daysSinceEpochAtCompletion = Math.floor(Date.UTC(completionDate.getUTCFullYear(), completionDate.getUTCMonth(), completionDate.getUTCDate()) / msPerDay);
+              const cycleIndexAtCompletion = ((daysSinceEpochAtCompletion + cycleOffsetDays) % 7 + 7) % 7;
+              const cycleDayAtCompletion = cycleIndexAtCompletion + 1;
+              const scheduleAtCompletion = CLAN_SCHEDULE[cycleIndexAtCompletion] || 'Unknown';
+
+              // time until completion (from now)
+              const secUntilCompletion = Math.max(0, Math.floor(spedUpSeconds));
+              const hh = Math.floor(secUntilCompletion / 3600);
+              const mm = Math.floor((secUntilCompletion % 3600) / 60);
+              const ss = secUntilCompletion % 60;
+              const timeUntilCompletion = `${hh}h ${mm}m ${ss}s`;
+
+              out += `Tier ${tier}, Level ${level} (row: "${entry.label}")\n`;
+              out += `Base Time (table): ${baseTimeText} → ${baseSeconds} seconds\n`;
+              out += `Speed (entered): ${speedInputPct}% → factor ${speedFactor.toFixed(4)}\n`;
+              out += `Predicted time until completion: ${timeUntilCompletion}\n\n`;
+              out += `Completion (UTC): ${completionUtc}\n`;
+              out += `Completion (local): ${completionLocal}\n\n`;
+              out += `Clan War cycle day at completion: Day ${cycleDayAtCompletion}\n`;
+              out += `Schedule at completion: ${scheduleAtCompletion}\n`;
+
+              // short summary for day_info box
+              outShort += `Tech will finish in ${timeUntilCompletion}\n`;
+              outShort += `Local finish time: ${completionLocal}\n`;
+              outShort += `Will finish on Day ${cycleDayAtCompletion}\n${scheduleAtCompletion}\n`;
+            }
+          }
+        }
+      }
+
+      out += '\n(Note: cycle day calculation uses UTC date. Adjust cycleOffsetDays in script if your clan uses a different epoch start.)\n';
+
+      const el = $('time_info');
+      if (el) el.textContent = out;
+      const el2 = $('day_info');
+      if (el2) el2.textContent = outShort || '—';
+    }
+
+    function calculate() {
+      const parsed = getStats('e1');
+      const tier = Math.round(parsed.tier);
+      const level = Math.round(parsed.level);
+
+      if (!Number.isFinite(tier) || tier < 1) {
+        $('result').textContent = 'Please enter a valid Tier (1-5).';
+        return;
+      }
+      if (!Number.isFinite(level) || level < 1 || level > 5) {
+        $('result').textContent = 'Please enter a valid Level within the tier (1-5).';
+        return;
+      }
+
+      // find the matching row by tier and levelInTier
+      const entry = (window.techLevels || []).find(e => e.tier === tier && e.levelInTier === level);
+      if (!entry) {
+        $('result').textContent = `No data found for Tier ${tier}, Level ${level}.`;
+        return;
+      }
+
+      const baseCost = Number(entry.cost) || 0;
+      const baseTimeText = String(entry.timeText || '').trim();
+
+      // Treat inputs as percent values (user enters e.g. 12 meaning 12%)
+      const speedInputPct = Number(parsed.speed) || 0;
+      const discountInputPct = Math.abs(Number(parsed.discount) || 0); // absolute value per request
+
+      // Convert to fractional values
+      const speedFraction = speedInputPct / 100;     // e.g. 0.12
+      let discountFraction = discountInputPct / 100; // e.g. 0.12
+
+      // Clamp discountFraction to [0, 1] to avoid >100% discounts
+      discountFraction = Math.max(0, Math.min(1, discountFraction));
+
+      // Calculate discounted cost (cost cannot go negative)
+      const discountedCost = Math.max(0, Math.round(baseCost * (1 - discountFraction)));
+
+      // Speed: interpret as percent increase in speed -> time divided by (1 + speedFraction)
+      const speedFactor = 1 + speedFraction;
+      if (speedFactor <= 0) {
+        $('result').textContent = 'Invalid speed percent resulting in non-positive speed factor.';
+        return;
+      }
+
+      let baseSeconds;
+      try {
+        baseSeconds = window.parseDurationToSeconds(baseTimeText);
+      } catch (err) {
+        $('result').textContent = `Could not parse base time string "${baseTimeText}": ${err.message || err}`;
+        return;
+      }
+
+      const spedUpSeconds = baseSeconds / speedFactor;
+      const spedUpRounded = Math.max(0, Math.round(spedUpSeconds));
+
+      const baseTimeFormatted = window.formatDHMS(window.secondsToDHMS(baseSeconds, { fractional: false }));
+      const spedTimeFormatted = window.formatDHMS(window.secondsToDHMS(spedUpRounded, { fractional: false }));
+
+      // Update input stats
+      const statsEl = $('input_stats');
+      if (statsEl) {
+        statsEl.textContent = `Inputs — Tier: ${tier}, Level: ${level}/5, Speed: ${speedInputPct}%, Discount (abs): ${discountInputPct}%`;
+      }
+
+      // Build result text
+      let resultText = '';
+      resultText += `Tier ${tier}, Level ${level} (row: "${entry.label}")\n\n`;
+      resultText += `Base Cost: ${formatNumber(baseCost)}\n`;
+      resultText += `Discount (entered, abs): ${discountInputPct}% → fraction: ${discountFraction}\n`;
+      resultText += `Discounted Cost: ${formatNumber(discountedCost)}\n\n`;
+
+      resultText += `Base Time (table): ${baseTimeText}\n`;
+      resultText += `Base Time (parsed): ${baseTimeFormatted} → ${baseSeconds} seconds\n`;
+      resultText += `Speed (entered): ${speedInputPct}% → factor: ${speedFactor.toFixed(4)}\n`;
+      resultText += `Sped-up Time: ${spedTimeFormatted} → ${spedUpRounded} seconds\n\n`;
+
+      resultText += `Notes:\n`;
+      resultText += `- Discount is taken as the absolute value of the input and applied as a percent (e.g. 12 -> 12%).\n`;
+      resultText += `- Speed is taken as a percent and reduces time by dividing by (1 + speedFraction) (e.g. 20% -> divide time by 1.20).\n`;
+
+      $('result').textContent = resultText;
+
+      // Update the time info so user sees completion time immediately
+      showTimeInfo();
+    }
+  </script>
+</body>
+</html>

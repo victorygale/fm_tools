@@ -57,7 +57,7 @@
   </div>
 
   <div style="margin-top:12px;">
-    <button onclick="timecheck()">Check Time (UTC+0)</button>
+    <button onclick="timecheck()">Check Time (UTC+0 and Local)</button>
     <div id="result">Results will appear here.</div>
   </div>
 
@@ -162,31 +162,43 @@
       if ($('schedule')) $('schedule').textContent = scheduleText;
     }
 
-    // Time check: show current UTC time, cycle day, today's schedule and tip, and time until next UTC day
+    // Time check: show current UTC time, local device time, cycle day, today's schedule and tip, and time until next UTC day
     function timecheck() {
       const now = new Date();
 
+      // UTC timestamp
       const year = now.getUTCFullYear();
       const month = String(now.getUTCMonth() + 1).padStart(2, '0');
       const dayStr = String(now.getUTCDate()).padStart(2, '0');
       const hours = String(now.getUTCHours()).padStart(2, '0');
       const minutes = String(now.getUTCMinutes()).padStart(2, '0');
       const seconds = String(now.getUTCSeconds()).padStart(2, '0');
-      const timestamp = `${year}-${month}-${dayStr} ${hours}:${minutes}:${seconds} UTC`;
+      const utcTimestamp = `${year}-${month}-${dayStr} ${hours}:${minutes}:${seconds} UTC`;
+
+      // Local device timestamp and timezone info
+      const localTimestamp = now.toLocaleString(); // uses user's locale
+      const tzName = (Intl && Intl.DateTimeFormat) ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'Local';
+      const offsetMinutes = now.getTimezoneOffset(); // minutes behind UTC (note sign)
+      // convert to UTC±HH:MM (positive offset means east of UTC)
+      const offsetTotal = -offsetMinutes; // offsetMinutes is minutes behind UTC; invert to get +ve east
+      const offsetSign = offsetTotal >= 0 ? '+' : '-';
+      const absOffset = Math.abs(offsetTotal);
+      const offsetHours = Math.floor(absOffset / 60).toString().padStart(2, '0');
+      const offsetMins = (absOffset % 60).toString().padStart(2, '0');
+      const tzOffsetStr = `UTC${offsetSign}${offsetHours}:${offsetMins}`;
 
       // Compute cycle day based on days since epoch (UTC)
       const msPerDay = 24 * 60 * 60 * 1000;
-      // use UTC now for daysSinceEpoch to avoid timezone edge-cases
       const daysSinceEpoch = Math.floor(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) / msPerDay);
       const cycleOffsetDays = 2; // adjust this if your clan cycle starts on a specific epoch day
       const cycleIndex = ((daysSinceEpoch + cycleOffsetDays) % 7 + 7) % 7; // 0..6
       const cycleDayNumber = cycleIndex + 1; // 1..7
 
-      // Get today's schedule and tip
+      // Get today's schedule and tip (switchClanDay updates the schedule div as well)
       const scheduleText = CLAN_SCHEDULE[cycleIndex];
-      const info = switchClanDay(cycleDayNumber); // this also updates schedule div with day details
+      const info = switchClanDay(cycleDayNumber);
 
-      // Time until next UTC day
+      // Time until next UTC day (midnight)
       const nextMidnightUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
       let msUntilNext = nextMidnightUtc - now.getTime();
       if (msUntilNext < 0) msUntilNext = 0;
@@ -197,12 +209,13 @@
       const timeUntilNext = `${hh}h ${mm}m ${ss}s`;
 
       let out = '';
-      out += `Current UTC time: ${timestamp}\n`;
+      out += `Current UTC time: ${utcTimestamp}\n`;
+      out += `Local device time: ${localTimestamp} (${tzName}, ${tzOffsetStr})\n\n`;
       out += `Clan War cycle day: Day ${cycleDayNumber}\n`;
       out += `Today's schedule: ${scheduleText}\n`;
       out += `Tip of the day: ${info.tips}\n`;
       out += `Time until next UTC day (00:00 UTC): ${timeUntilNext}\n`;
-      out += '\n(UTC+0 is used for this check. If you need a different cycle start date, set cycleOffsetDays in the script.)\n';
+      out += '\n(UTC+0 is used for the cycle day calculation. If you need a different cycle start date, set cycleOffsetDays in the script.)\n';
 
       if ($('result')) $('result').textContent = out;
     }
