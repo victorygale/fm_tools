@@ -23,6 +23,8 @@
     #instructions { white-space: pre-wrap; }
     #changelogs { white-space: pre-wrap; }
     #attackspeeds { white-space: pre-wrap; }
+    #subprios { white-space: pre-wrap; }
+    #submaxx { white-space: pre-wrap; }
     .stats { margin-top: 8px; font-style: italic; color:var(--muted) }
     .nav {
       display: grid;
@@ -85,6 +87,16 @@
   <div style="margin-top:12px;">
     <button onclick="attackspeed()">Show/hide Attack Speed Table</button>
     <div id="attackspeeds">Attack speed summary will appear here.</div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <button onclick="subprio()">Show/hide Substat Priority</button>
+    <div id="subprios">Sub stats priorities will appear here.</div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <button onclick="submax()">Show/hide Substat Proportions</button>
+    <div id="submaxx">Max and proportional substats will appear here.</div>
   </div>
 
   <h3>📁 Upload or Download Player Stats</h3>
@@ -215,6 +227,10 @@
   </div>
 
   <div class="nav" style="margin-top:20px;">
+    <a href="https://discord.gg/fmaster" class="card" target="_blank" rel="noopener noreferrer">
+      <div class="icon">🔨</div>
+      <div>Discord Link</div>
+    </a>
     <a href="https://octavian-mirica.github.io/fm-tools/" class="card" target="_blank" rel="noopener noreferrer">
       <div class="icon">🐈‍⬛</div>
       <div>Fm Tools by Fitz</div>
@@ -637,6 +653,7 @@
     function changelog() {
       let changelogText = '';
 	if ($('changelogs').textContent === 'Changelogs will appear here.') {
+          changelogText += `Added more tables for substats.\n`;
           changelogText += `Updated colours and layout and added clan war tool.\n`;
           changelogText += `Updated speed calculations and added disclaimer.\n`;
           changelogText += `Changed the colours.\n`;
@@ -669,11 +686,57 @@
           attackspeedText += `     <275%      ||   0.7\n`;
           attackspeedText += `     <400%      ||   0.6\n`;
           attackspeedText += `     >400%      ||   0.5\n`;
-          attackspeedText += `Please note different weapons have different offsets and rounding so the example can only be used as a rough guide.\n`;
+          attackspeedText += `Please note different weapons have different offsets and rounding so the example can only be used as a rough guide. Also double chance adds on the delay.\n`;
         } else {
           attackspeedText = 'Attack speed summary will appear here.';
         }
       $('attackspeeds').textContent = attackspeedText;
+    }
+
+    function subprio() {
+      let subprioText = '';
+	if ($('subprios').textContent === 'Sub stats priorities will appear here.') {
+          subprioText += `None || Single || Double || Substat\n`;
+          subprioText += `==============================\n`;
+          subprioText += `100% || 150% ||   50%   || Damage(%)\n`;
+          subprioText += `100% || 150% ||   50%   || Health(%)\n`;
+          subprioText += `100% || 200% ||  200%  || Attack Speed\n`;
+          subprioText += `100% || 200% ||  200%  || Double Chance\n`;
+          subprioText += `100% ||  50%  ||  200%  || Crit Chance\n`;
+          subprioText += `100% ||  50%  ||  200%  || Crit Damage\n`;
+          subprioText += `100% || 200% ||  200%  || Lifesteal\n`;
+          subprioText += `100% || 100% ||  100%  || Range\n`;
+          subprioText += `100% || 150% ||  100%  || Regen\n`;
+          subprioText += `100% || 100% ||  100%  || Block\n`;
+          subprioText += `100% ||  50%  ||   50%   || Skill\n`;
+          subprioText += `100% ||  50%  ||   50%   || Cooldown\n`;
+        } else {
+          subprioText = 'Sub stats priorities will appear here.';
+        }
+      $('subprios').textContent = subprioText;
+    }
+
+    function submax() {
+      let submaxText = '';
+	if ($('submaxx').textContent === 'Max and proportional substats will appear here.') {
+          submaxText += `Max  ||   90%  ||   75%  ||   50%  || Substat\n`;
+          submaxText += `===================================\n`;
+          submaxText += ` 15% || 13.5% || 12.3% ||  7.5%  || Damage(%)\n`;
+          submaxText += ` 15% || 13.5% || 12.3% ||  7.5%  || Health(%)\n`;
+          submaxText += ` 40% ||   36%  ||   30%  ||   20%  || Attack Speed\n`;
+          submaxText += ` 40% ||   36%  ||   30%  ||   20%  || Double Chance\n`;
+          submaxText += ` 12% || 10.8% ||    9%   ||    6%   || Crit Chance\n`;
+          submaxText += `100%||   90%  ||   75%  ||   50%  || Crit Damage\n`;
+          submaxText += ` 20% ||   18%  ||   15%  ||   10%  || Lifesteal\n`;
+          submaxText += ` 15% || 13.5% || 12.3% ||  7.5%  || Range\n`;
+          submaxText += `  6%  ||   5.4% ||   4.5% ||    3%   || Regen\n`;
+          submaxText += `  5%  ||   4.5% ||   3.8% ||  2.5%  || Block\n`;
+          submaxText += ` 15% || 13.5% || 12.3% ||  7.5%  || Skill\n`;
+          submaxText += `  7%  ||   6.3% ||   5.3% ||  3.5%  || Cooldown\n`;
+        } else {
+          submaxText = 'Max and proportional substats will appear here.';
+        }
+      $('submaxx').textContent = submaxText;
     }
 
   </script>
