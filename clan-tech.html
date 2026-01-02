@@ -16,6 +16,7 @@
     h2 { margin-top: 10px; }
     label { display: block; margin: 6px 0 2px; }
     input[type="number"] { width: 120px; margin-bottom: 8px; }
+    input[type="text"] { width: 180px; margin-bottom: 8px; }
     button { margin-top: 12px; padding: 8px 14px; }
     #result { margin-top: 18px; font-weight: 600; white-space: pre-wrap; background:#222; padding:12px; border-radius:8px; border:1px solid #363e18; }
     #time_info { margin-top: 12px; white-space: pre-wrap; background:#1a1a1a; padding:10px; border-radius:6px; border:1px solid #2f3b3b; }
@@ -62,10 +63,11 @@
   <h2 style="font-weight:normal">Instructions</h2>
   <h3>1. Input tech node tier and level out of 5</h3>
   <h3>2. Input Tech discount and research speed boosts (enter as percent values, e.g. 12 for 12%)</h3>
+  <h3>3. Optionally enter a start delay in "0d 0h 0m 0s" format to preview delayed start and finish times</h3>
 
   <div class="grid-row">
     <div class="column">
-      <table id="results_table" class="simple-table" aria-label="Attack Speed Steps">
+      <table id="results_table" class="simple-table" aria-label="Tech Steps">
         <thead>
           <tr><th>Tier and level</th><th>  Cost</th><th>  Time</th></tr>
         </thead>
@@ -105,6 +107,7 @@
         <label><input type="number" id="e1_level" value="1" step="1" min="1" max="5"/> Level (1-5)</label>
         <label><input type="number" id="e1_speed" value="0" step="any"/> Research Speed (%)</label>
         <label><input type="number" id="e1_discount" value="0" step="any"/> Research Discount (%)</label>
+        <label><input type="text" id="e1_delay" value="0d 0h 0m 0s" placeholder="e.g. 1d 2h 30m"/> Start Delay (0d 0h 0m 0s)</label>
       </div>
       <div class="stats" id="input_stats"></div>
       <div style="margin-top:12px;">
@@ -145,13 +148,14 @@
       return Number.isFinite(v) ? v : 0;
     }
 
-    // return raw tier and level inputs (both integers)
+    // return raw tier and level inputs (both integers) + delayText
     function getStats(prefix) {
       const tier = Math.max(0, Math.round(parseInputValue(prefix + '_tier')));
       const level = Math.max(0, Math.round(parseInputValue(prefix + '_level')));
       const speed = parseInputValue(prefix + '_speed');
       const discount = parseInputValue(prefix + '_discount');
-      return { tier, level, speed, discount };
+      const delayText = ($(prefix + '_delay') && $(prefix + '_delay').value) || '0d 0h 0m 0s';
+      return { tier, level, speed, discount, delayText };
     }
 
     function formatNumber(num) {
@@ -294,9 +298,9 @@
       // expose techLevels to global
       window.techLevels = buildTechLevels();
 
-      // Live parsed input display wiring
+      // Live parsed input display wiring (includes delay)
       (function attachInputListeners() {
-        const ids = ['e1_tier','e1_level','e1_speed','e1_discount'];
+        const ids = ['e1_tier','e1_level','e1_speed','e1_discount','e1_delay'];
         ids.forEach(id => {
           const el = document.getElementById(id);
           if (el) el.addEventListener('input', () => {
@@ -305,9 +309,15 @@
             const level = Number.isFinite(parsed.level) ? parsed.level : 0;
             const speedPct = Number.isFinite(parsed.speed) ? parsed.speed : 0;
             const discountPct = Number.isFinite(parsed.discount) ? Math.abs(parsed.discount) : 0;
+            let delaySeconds = 0;
+            try {
+              delaySeconds = parseDurationToSeconds(parsed.delayText || '0d 0h 0m 0s');
+            } catch (err) {
+              delaySeconds = NaN;
+            }
             const statsEl = document.getElementById('input_stats');
             if (statsEl) {
-              statsEl.textContent = `Parsed inputs — Tier: ${tier}, Level: ${level}/5, Speed: ${speedPct}% , Discount (abs): ${discountPct}%`;
+              statsEl.textContent = `Parsed inputs — Tier: ${tier}, Level: ${level}/5, Speed: ${speedPct}% , Discount (abs): ${discountPct}%, Delay: ${isFinite(delaySeconds) ? delaySeconds + 's' : 'invalid'}`;
             }
           });
         });
@@ -326,7 +336,7 @@
       'Day 7: Claim Rewards'
     ];
 
-    // Show current UTC/local time and predicted end-of-research times (if valid)
+    // Show current UTC/local time and predicted end-of-research times (now, delayed start, finish)
     function showTimeInfo() {
       const now = new Date();
 
@@ -372,8 +382,15 @@
       const tier = Math.round(parsed.tier);
       const level = Math.round(parsed.level);
 
-      // If inputs are not present (older versions), fall back to using tier & level defaults
-      // but keep behavior consistent: require both tier and level to be >=1
+      // parse delay (duration string) into seconds
+      let delaySeconds = 0;
+      try {
+        delaySeconds = window.parseDurationToSeconds(parsed.delayText || '0d 0h 0m 0s');
+      } catch (err) {
+        delaySeconds = null;
+        out += `Could not parse delay string "${parsed.delayText}": ${err.message}\n\n`;
+      }
+
       if (!Number.isFinite(tier) || !Number.isFinite(level) || tier < 1 || level < 1) {
         out += 'No valid tier/level selected — enter Tier (1-5) and Level (1-5) to see predicted completion times.\n';
       } else {
@@ -390,7 +407,7 @@
             out += `Could not parse base time: "${baseTimeText}" (${err.message || err})\n`;
           }
 
-          if (baseSeconds != null) {
+          if (baseSeconds != null && delaySeconds != null) {
             // speed input as percent (user enters e.g. 12 -> 12%)
             const speedInputPct = Number(parsed.speed) || 0;
             const speedFraction = speedInputPct / 100;
@@ -399,44 +416,73 @@
               out += `Invalid speed percent resulting in non-positive speed factor (${speedFactor}).\n`;
             } else {
               const spedUpSeconds = baseSeconds / speedFactor;
-              const completionDate = new Date(now.getTime() + Math.round(spedUpSeconds * 1000));
 
-              // Completion times (UTC and local)
-              const cy = completionDate.getUTCFullYear();
-              const cmon = String(completionDate.getUTCMonth() + 1).padStart(2, '0');
-              const cday = String(completionDate.getUTCDate()).padStart(2, '0');
-              const ch = String(completionDate.getUTCHours()).padStart(2, '0');
-              const cmin = String(completionDate.getUTCMinutes()).padStart(2, '0');
-              const csec = String(completionDate.getUTCSeconds()).padStart(2, '0');
-              const completionUtc = `${cy}-${cmon}-${cday} ${ch}:${cmin}:${csec} UTC`;
-              const completionLocal = completionDate.toLocaleString();
+              // compute times: now, scheduled start (delayed), finish (start + spedUpSeconds)
+              const startDate = new Date(now.getTime() + Math.round(Math.max(0, delaySeconds) * 1000));
+              const finishDate = new Date(startDate.getTime() + Math.round(spedUpSeconds * 1000));
 
-              // cycle day at completion (based on UTC date)
-              const daysSinceEpochAtCompletion = Math.floor(Date.UTC(completionDate.getUTCFullYear(), completionDate.getUTCMonth(), completionDate.getUTCDate()) / msPerDay);
-              const cycleIndexAtCompletion = ((daysSinceEpochAtCompletion + cycleOffsetDays) % 7 + 7) % 7;
-              const cycleDayAtCompletion = cycleIndexAtCompletion + 1;
-              const scheduleAtCompletion = CLAN_SCHEDULE[cycleIndexAtCompletion] || 'Unknown';
+              // format helper
+              function fmtDateUTC(d) {
+                const y = d.getUTCFullYear();
+                const mo = String(d.getUTCMonth() + 1).padStart(2, '0');
+                const da = String(d.getUTCDate()).padStart(2, '0');
+                const hh = String(d.getUTCHours()).padStart(2, '0');
+                const mm = String(d.getUTCMinutes()).padStart(2, '0');
+                const ss = String(d.getUTCSeconds()).padStart(2, '0');
+                return `${y}-${mo}-${da} ${hh}:${mm}:${ss} UTC`;
+              }
+              const startUtc = fmtDateUTC(startDate);
+              const startLocal = startDate.toLocaleString();
+              const finishUtc = fmtDateUTC(finishDate);
+              const finishLocal = finishDate.toLocaleString();
 
-              // time until completion (from now)
-              const secUntilCompletion = Math.max(0, Math.floor(spedUpSeconds));
-              const hh = Math.floor(secUntilCompletion / 3600);
-              const mm = Math.floor((secUntilCompletion % 3600) / 60);
-              const ss = secUntilCompletion % 60;
-              const timeUntilCompletion = `${hh}h ${mm}m ${ss}s`;
+              // cycle day at start and at finish (UTC date based)
+              const daysAtStart = Math.floor(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()) / msPerDay);
+              const cycleIndexAtStart = ((daysAtStart + cycleOffsetDays) % 7 + 7) % 7;
+              const cycleDayAtStart = cycleIndexAtStart + 1;
+              const scheduleAtStart = CLAN_SCHEDULE[cycleIndexAtStart] || 'Unknown';
+
+              const daysAtFinish = Math.floor(Date.UTC(finishDate.getUTCFullYear(), finishDate.getUTCMonth(), finishDate.getUTCDate()) / msPerDay);
+              const cycleIndexAtFinish = ((daysAtFinish + cycleOffsetDays) % 7 + 7) % 7;
+              const cycleDayAtFinish = cycleIndexAtFinish + 1;
+              const scheduleAtFinish = CLAN_SCHEDULE[cycleIndexAtFinish] || 'Unknown';
+
+              // time intervals
+              const secUntilStart = Math.max(0, Math.floor((startDate.getTime() - now.getTime()) / 1000));
+              const secUntilFinish = Math.max(0, Math.floor((finishDate.getTime() - now.getTime()) / 1000));
+
+              const toDHMS = s => {
+                const hh = Math.floor(s / 3600);
+                const mm = Math.floor((s % 3600) / 60);
+                const ss = s % 60;
+                return `${hh}h ${mm}m ${ss}s`;
+              };
 
               out += `Tier ${tier}, Level ${level} (row: "${entry.label}")\n`;
               out += `Base Time (table): ${baseTimeText} → ${baseSeconds} seconds\n`;
-              out += `Speed (entered): ${speedInputPct}% → factor ${speedFactor.toFixed(4)}\n`;
-              out += `Predicted time until completion: ${timeUntilCompletion}\n\n`;
-              out += `Completion (UTC): ${completionUtc}\n`;
-              out += `Completion (local): ${completionLocal}\n\n`;
-              out += `Clan War cycle day at completion: Day ${cycleDayAtCompletion}\n`;
-              out += `Schedule at completion: ${scheduleAtCompletion}\n`;
+              out += `Speed (entered): ${speedInputPct}% → factor ${speedFactor.toFixed(4)}\n\n`;
 
-              // short summary for day_info box
-              outShort += `Tech will finish in ${timeUntilCompletion}\n`;
-              outShort += `Local finish time: ${completionLocal}\n`;
-              outShort += `Will finish on Day ${cycleDayAtCompletion}\n${scheduleAtCompletion}\n`;
+              out += `Now (UTC): ${utcTimestamp}\n`;
+              out += `Now (local): ${localTimestamp}\n\n`;
+
+              out += `Delayed Start (UTC): ${startUtc}\n`;
+              out += `Delayed Start (local): ${startLocal}\n`;
+              out += `Time until start: ${toDHMS(secUntilStart)}\n`;
+              out += `Clan War cycle at delayed start: Day ${cycleDayAtStart}\n`;
+              out += `Schedule at start: ${scheduleAtStart}\n\n`;
+
+              out += `Predicted finish (UTC): ${finishUtc}\n`;
+              out += `Predicted finish (local): ${finishLocal}\n`;
+              out += `Time until finish: ${toDHMS(secUntilFinish)}\n`;
+              out += `Clan War cycle at finish: Day ${cycleDayAtFinish}\n`;
+              out += `Schedule at finish: ${scheduleAtFinish}\n\n`;
+
+              outShort += `Now (local): ${localTimestamp}\n`;
+              outShort += `Currently on Day ${cycleDayNow} — ${scheduleNow}\n\n`;
+              outShort += `Research Start (local): ${startLocal}\n`;
+              outShort += `Will start on Day ${cycleDayAtStart} — ${scheduleAtStart}\n\n`;
+              outShort += `Research Finish (local): ${finishLocal}\n`;
+              outShort += `Will finish on Day ${cycleDayAtFinish} — ${scheduleAtFinish}\n`;
             }
           }
         }
@@ -506,13 +552,29 @@
       const spedUpSeconds = baseSeconds / speedFactor;
       const spedUpRounded = Math.max(0, Math.round(spedUpSeconds));
 
+      // parse delay
+      let delaySeconds = 0;
+      try {
+        delaySeconds = window.parseDurationToSeconds(parsed.delayText || '0d 0h 0m 0s');
+      } catch (err) {
+        $('result').textContent = `Could not parse delay string "${parsed.delayText}": ${err.message || err}`;
+        return;
+      }
+
+      const startDate = new Date(Date.now() + Math.round(Math.max(0, delaySeconds) * 1000));
+      const finishDate = new Date(startDate.getTime() + Math.round(spedUpSeconds * 1000));
+
       const baseTimeFormatted = window.formatDHMS(window.secondsToDHMS(baseSeconds, { fractional: false }));
       const spedTimeFormatted = window.formatDHMS(window.secondsToDHMS(spedUpRounded, { fractional: false }));
+      const startLocal = startDate.toLocaleString();
+      const startUtc = `${startDate.getUTCFullYear()}-${String(startDate.getUTCMonth()+1).padStart(2,'0')}-${String(startDate.getUTCDate()).padStart(2,'0')} ${String(startDate.getUTCHours()).padStart(2,'0')}:${String(startDate.getUTCMinutes()).padStart(2,'0')}:${String(startDate.getUTCSeconds()).padStart(2,'0')} UTC`;
+      const finishLocal = finishDate.toLocaleString();
+      const finishUtc = `${finishDate.getUTCFullYear()}-${String(finishDate.getUTCMonth()+1).padStart(2,'0')}-${String(finishDate.getUTCDate()).padStart(2,'0')} ${String(finishDate.getUTCHours()).padStart(2,'0')}:${String(finishDate.getUTCMinutes()).padStart(2,'0')}:${String(finishDate.getUTCSeconds()).padStart(2,'0')} UTC`;
 
       // Update input stats
       const statsEl = $('input_stats');
       if (statsEl) {
-        statsEl.textContent = `Inputs — Tier: ${tier}, Level: ${level}/5, Speed: ${speedInputPct}%, Discount (abs): ${discountInputPct}%`;
+        statsEl.textContent = `Inputs — Tier: ${tier}, Level: ${level}/5, Speed: ${speedInputPct}%, Discount (abs): ${discountInputPct}%, Delay: ${delaySeconds}s`;
       }
 
       // Build result text
@@ -527,9 +589,16 @@
       resultText += `Speed (entered): ${speedInputPct}% → factor: ${speedFactor.toFixed(4)}\n`;
       resultText += `Sped-up Time: ${spedTimeFormatted} → ${spedUpRounded} seconds\n\n`;
 
+      resultText += `Delay before start: ${delaySeconds} seconds\n`;
+      resultText += `Scheduled start (UTC): ${startUtc}\n`;
+      resultText += `Scheduled start (local): ${startLocal}\n\n`;
+      resultText += `Predicted finish (UTC): ${finishUtc}\n`;
+      resultText += `Predicted finish (local): ${finishLocal}\n\n`;
+
       resultText += `Notes:\n`;
       resultText += `- Discount is taken as the absolute value of the input and applied as a percent (e.g. 12 -> 12%).\n`;
       resultText += `- Speed is taken as a percent and reduces time by dividing by (1 + speedFraction) (e.g. 20% -> divide time by 1.20).\n`;
+      resultText += `- Delay is parsed from a human readable duration (e.g. "1d 2h 30m") and applied before the research starts.\n`;
 
       $('result').textContent = resultText;
 
